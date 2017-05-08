@@ -1,0 +1,226 @@
+\usepackage{amsmath,amssymb,amsthm,amsfonts,latexsym,bbm,xspace,graphicx,float,mathtools,epigraph}
+\usepackage[backref,colorlinks,citecolor=blue,bookmarks=true]{hyperref}
+\usepackage{enumitem,manyfoot,fullpage}
+\usepackage{subfig,tikz,framed}
+\usepackage{tabularx}
+\usepackage[a4paper, margin=0.8in]{geometry}
+
+\usepackage{verbatimbox}
+\usepackage{multirow}
+\usepackage{scalerel}
+%\usepackage{tgheros}
+
+\hfuzz2pt
+
+% environments
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem*{namedtheorem}{\theoremname}
+\newcommand{\theoremname}{testing}
+\newenvironment{named}[1]{ \renewcommand{\theoremname}{#1} \begin{namedtheorem}} {\end{namedtheorem}}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{fact}[theorem]{Fact}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{notation}[theorem]{Notation}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{examples}[theorem]{Examples}
+
+% \numberwithin{section}{chapter}
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
+\newfootnote{B}
+\makeatletter
+\def\scribenote#1#2{\ifx\protect\@typeset@protect
+    \FootnotetextB{}{Instructor: #1. Scribe: #2.}%
+  \else
+    \relax
+  \fi
+}
+
+\makeatletter
+\def\th@plain{%
+  \thm@notefont{}% same as heading font
+  \itshape % body font
+}
+\def\th@definition{%
+  \thm@notefont{}% same as heading font
+  \normalfont % body font
+}
+\makeatother
+
+\newenvironment{quotenote}{
+\begin{quote}
+  \footnotesize
+\noindent{\bf Note:}}
+{\end{quote}
+}
+
+\newcommand{\lecture}[4]{\setcounter{chapter}{#1-1}\chapter[#2]{#2\scribenote{#3}{#4}}}
+\newcommand{\insertbibliography}[1]{\bibliographystyle{alpha}\bibliography{#1}}
+\newcommand{\course}[4]{
+\begin{center}
+\begin{tabularx}{\textwidth}{|lcr|}
+\hline
+      {\bf #1 } & & \today \\ & & \\
+      \multicolumn{3}{|>{\centering}X|}{\bf\Large #2 }\\
+      & &\\
+      {\it Instructor: #3} & & {\it Notes: #4} \\
+\hline
+\end{tabularx}
+\end{center}
+}
+\setcounter{section}{1}
+% probability and other mathops
+\renewcommand{\Pr}{\mathop{\mathbb P\/}}
+\newcommand{\Rand}{\mathop{\reflectbox{\bf R}\!\/}}
+
+\newcommand{\Mq}{\mathop{\bf M\!}}
+\newcommand{\Aq}{\mathop{\bf A\!}}
+
+\newcommand{\Ex}{\mathop{\mathbb E\/}}
+\newcommand{\Var}{\mathop{\bf Var\/}}
+\newcommand{\Cov}{\mathop{\bf Cov\/}}
+\newcommand{\stddev}{\mathop{\bf stddev\/}}
+\newcommand{\littlesum}{\mathop{{\textstyle \sum}}}
+\newcommand{\apx}{\mathop{\approx}}
+
+\newcommand\abs[1]{\left|#1\right|}
+\DeclarePairedDelimiter\ceil{\lceil}{\rceil}
+\DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+% math operators
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+
+% mathrm terms
+\newcommand{\poly}{\mathrm{poly}}
+\newcommand{\polylog}{\mathrm{polylog}}
+\newcommand{\size}{\mathrm{size}}
+\newcommand{\avg}{\mathop{\mathrm{avg}}}
+\newcommand{\sgn}{\mathrm{sgn}}
+\newcommand{\dist}{\mathrm{dist}}
+\newcommand{\spn}{\mathrm{span}}
+\newcommand{\supp}{\mathrm{supp}}
+\newcommand{\Val}{\mathrm{Val}}
+\newcommand{\Opt}{\mathrm{Opt}}
+\newcommand{\LPOpt}{\mathrm{LPOpt}}
+\newcommand{\SDPOpt}{\mathrm{SDPOpt}}
+\newcommand{\vol}{\mathrm{vol}}
+
+% number systems
+\newcommand{\R}{\mathbbm R}
+\newcommand{\C}{\mathbbm C}
+\newcommand{\N}{\mathbbm N}
+\newcommand{\Z}{\mathbbm Z}
+\newcommand{\F}{\mathbbm F}
+\newcommand{\Q}{\mathbbm Q}
+
+% complexity classes
+\newcommand{\PTIME}{\mathsf{P}}
+\newcommand{\NP}{\mathsf{NP}} \newcommand{\np}{\NP}
+\newcommand{\AM}{\mathsf{AM}} \newcommand{\am}{\AM}
+\newcommand{\MA}{\mathsf{MA}} \newcommand{\ma}{\MA}
+
+% short forms
+\newcommand{\eps}{\epsilon}
+\newcommand{\lam}{\lambda}
+\newcommand{\vphi}{\varphi}
+\newcommand{\la}{\langle}
+\newcommand{\ra}{\rangle}
+\newcommand{\wt}[1]{\widetilde{#1}}
+\newcommand{\wh}[1]{\widehat{#1}}
+\newcommand{\ul}[1]{\underline{#1}}
+\newcommand{\ol}[1]{\overline{#1}}
+\newcommand{\ot}{\otimes}
+\newcommand{\Ra}{\Rightarrow}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\grad}{\nabla}
+\newcommand{\sse}{\subseteq}
+
+
+% calligraphic letters
+\newcommand{\calA}{\mathcal{A}}
+\newcommand{\calB}{\mathcal{B}}
+\newcommand{\calC}{\mathcal{C}}
+\newcommand{\calD}{\mathcal{D}}
+\newcommand{\calE}{\mathcal{E}}
+\newcommand{\calF}{\mathcal{F}}
+\newcommand{\calG}{\mathcal{G}}
+\newcommand{\calH}{\mathcal{G}}
+\newcommand{\calI}{\mathcal{I}}
+\newcommand{\calJ}{\mathcal{J}}
+\newcommand{\calK}{\mathcal{K}}
+\newcommand{\calL}{\mathcal{L}}
+\newcommand{\calM}{\mathcal{M}}
+\newcommand{\calN}{\mathcal{N}}
+\newcommand{\calO}{\mathcal{O}}
+\newcommand{\calP}{\mathcal{P}}
+\newcommand{\calQ}{\mathcal{Q}}
+\newcommand{\calR}{\mathcal{R}}
+\newcommand{\calS}{\mathcal{S}}
+\newcommand{\calT}{\mathcal{T}}
+\newcommand{\calU}{\mathcal{U}}
+\newcommand{\calV}{\mathcal{V}}
+\newcommand{\calW}{\mathcal{W}}
+\newcommand{\calX}{\mathcal{X}}
+\newcommand{\calY}{\mathcal{Y}}
+\newcommand{\calZ}{\mathcal{Z}}
+
+
+
+%%%%%%%%%%%% document-writing macros %%%%%%%%%%%%
+
+\newcommand{\ignore}[1]{}
+\newcommand{\myfig}[4]{\begin{figure}[H] \begin{center} \includegraphics[width=#1\textwidth]{#2} \caption{#3} \label{#4} \end{center} \end{figure}}
+
+
+
+\newcommand{\extline}{$\scriptsize$-$\normalsize$\!}
+\newcommand{\lextlineend}{$\scriptsize$\lhd\!$\normalsize$}
+\newcommand{\rextlineend}{$\scriptsize\rule{.1ex}{0ex}$\rhd$\normalsize$}
+
+\newcounter{index}
+
+\newcommand\extlines[1]{%
+  \setcounter{index}{0}%
+  \whiledo {\value{index}< #1}
+  {\addtocounter{index}{1}\extline}
+}
+
+\newcommand\rextlinearrow[2]{$
+  \setbox0\hbox{$\extlines{#2}\rextlineend$}%
+  \tiny$%
+  \!\!\!\!\begin{array}{c}%
+  \mathrm{#1}\\%
+  \usebox0%
+  \end{array}%
+  $\normalsize$\!\!%
+}
+
+\newcommand\lextlinearrow[2]{$
+  \setbox0\hbox{$\lextlineend\extlines{#2}$}%
+  \tiny%
+  $%
+  \!\!\!\!\begin{array}{c}%
+  \mathrm{#1}\\%
+  \usebox0%
+  \end{array}%
+  $\normalsize$\!\!%
+}
+
+\renewcommand\lextlinearrow[2]{%
+  \setbox0\hbox{$\lextlineend\extlines{#2}$}%
+  \shortstack{$\mathrm{#1}$\\\addvbuffer[-.7ex -.3ex]{\usebox0}}%
+}
+
+\renewcommand\rextlinearrow[2]{%
+  \setbox0\hbox{$\extlines{#2}\rextlineend$}%
+  \shortstack{$\mathrm{#1}$\\\addvbuffer[-.7ex -.3ex]{\usebox0}}%
+}

@@ -1,0 +1,19 @@
+\course{Complexity Reading Group}{"How to Simulate It" Notes}{Kai-Ming, Chung}{Yin-Hsun, Huang}
+\vspace*{4mm} 
+
+\subsection{Introduction}
+Simulation is a way of comparig what happens in the "real world" to what happens in an "ideal world" where the primitive in question is {\it secure by definition}.
+
+\subsection{Semantic Security}
+We begin by recalling the definition of semantic security.
+\begin{definition}[Semantic Security] A {\it private-key encryption scheme} $(G,E,D)$ is {\bf semantically secure} (in the private-key model) if for every non-uniform probabilistic-polynomial time algorithm $\calA$, there exists a non-uniform probabilistic-polynomial time algorithm $\calA'$ such that for every probability ensemble $\{X_n\}_{n\in\N}$ with $\abs{X_n}\leq poly(n)$, every pair of polynomially-bounded functions $f,h:\{0,1\}^*\to\{0,1\}^*$, every positive polynomial $p(\cdot)$ and all sufficiently large $n$:
+\begin{align*}
+    \Pr[k\leftarrow G(1^n);\calA(1^n,E_k(X_n), h(1^n,X_n)) = f(1^n, X_n)] \\
+    < \Pr[\calA'(1^n,1^{\abs{X_n}}, h(1^n,X_n)) = f(1^n,X_n) ]+ \frac{1}{p(n)}
+\end{align*}
+with probability over $X_n$ and the randomness of $(G,E)$ and $\calA$ or$\calA'$.
+\end{definition}
+Though the definition of {\it semantic security} is not directly related to simulation-based paradigm.
+
+\insertbibliography{complexity}
+\nocite{*}
