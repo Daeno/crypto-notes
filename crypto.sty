@@ -8,6 +8,7 @@
 \usepackage{verbatimbox}
 \usepackage{multirow}
 \usepackage{scalerel}
+\usepackage{adjustbox}
 %\usepackage{tgheros}
 
 \hfuzz2pt
@@ -30,6 +31,8 @@
 \newtheorem{notation}[theorem]{Notation}
 \newtheorem{example}[theorem]{Example}
 \newtheorem{examples}[theorem]{Examples}
+
+\newtheorem{protocol}[theorem]{Protocol}
 
 % \numberwithin{section}{chapter}
 \numberwithin{equation}{section}
@@ -76,7 +79,7 @@
 \end{tabularx}
 \end{center}
 }
-\setcounter{section}{1}
+\setcounter{section}{0}
 % probability and other mathops
 \renewcommand{\Pr}{\mathop{\mathbb P\/}}
 \newcommand{\Rand}{\mathop{\reflectbox{\bf R}\!\/}}
@@ -94,6 +97,10 @@
 \newcommand\abs[1]{\left|#1\right|}
 \DeclarePairedDelimiter\ceil{\lceil}{\rceil}
 \DeclarePairedDelimiter\floor{\lfloor}{\rfloor}
+
+\newcommand{\out} {{\sf output}}
+\newcommand{\view}{{\sf view}}
+
 
 % math operators
 \DeclareMathOperator*{\argmin}{\arg\!\min}

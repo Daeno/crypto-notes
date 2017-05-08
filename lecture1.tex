@@ -1,10 +1,10 @@
 \course{Complexity Reading Group}{"How to Simulate It" Notes}{Kai-Ming, Chung}{Yin-Hsun, Huang}
 \vspace*{4mm} 
 
-\subsection{Introduction}
+\section{Introduction}
 Simulation is a way of comparig what happens in the "real world" to what happens in an "ideal world" where the primitive in question is {\it secure by definition}.
 
-\subsection{Semantic Security}
+\section{Semantic Security}
 We begin by recalling the definition of semantic security.
 \begin{definition}[Semantic Security] A {\it private-key encryption scheme} $(G,E,D)$ is {\bf semantically secure} (in the private-key model) if for every non-uniform probabilistic-polynomial time algorithm $\calA$, there exists a non-uniform probabilistic-polynomial time algorithm $\calA'$ such that for every probability ensemble $\{X_n\}_{n\in\N}$ with $\abs{X_n}\leq poly(n)$, every pair of polynomially-bounded functions $f,h:\{0,1\}^*\to\{0,1\}^*$, every positive polynomial $p(\cdot)$ and all sufficiently large $n$:
 \begin{align*}
@@ -13,7 +13,80 @@ We begin by recalling the definition of semantic security.
 \end{align*}
 with probability over $X_n$ and the randomness of $(G,E)$ and $\calA$ or$\calA'$.
 \end{definition}
-Though the definition of {\it semantic security} is not directly related to simulation-based paradigm.
+Though the definition of {\it semantic security} is not directly related to simulation-based paradigm. In particular, $\calA'$ simulate the execution of $\calA$ as follows:
+\begin{description}
+    \item [\bf Simulator $\calA'$:] Upon input $1^n,h=h(1^n,X_n)$, algorithm $\calA'$ works as follows
+    \begin{enumerate}
+        \item $\calA'$ runs $G(1^n)$ in order to receive $k$.
+        \item $\calA'$ computes $c=E_k(0^{\abs{X_n}})$
+        \item $\calA'$ outputs $\calA(1^n,c,a^{\abs{X_n}},h)$
+    \end{enumerate}
+\end{description}
+If encryptions are {\it indistinguishable}, then the simulation process should output the same as $\calA$ with approximately the same probability.
+\section{Secure Computation - Semi-Honest Adversaries}
+\subsection{Background}
+The {\it semi-honest adversaries} in two-party computation is an adversary that follows the protocol but wants to learn information from the transcript of messages. Hence the nickname, honest-but-curious adversaries. 
+\begin{remark}
+    This is a very weak adversary model. There are no guarantees to the security against adversaries that deviate from the protocol.
+\end{remark}
 
-\insertbibliography{complexity}
-\nocite{*}
+\begin{definition}[Two-party computation] A two-party random process maps pairs of inputs to pairs of outputs. We refer to such a process as a {\bf functionality} and denote it $f:\{0,1\}^*\times\{0,1\}^*\to\{0,1\}^*\times\{0,1\}^*$, where $f=(f_1,f_2)$. For every pair of inputs $x,y\in\{0,1\}^n$, the pair of output is a random variable $(f_1(x,y),f_2(x,y))$. The first (resp. second) party (with input $x$ (resp. $y$)) wishes to obtain $f_1(x,y)$ (resp. $f_2(x,y)$).
+\end{definition}
+The goal of simulator is to generate the view only from a party's input and output. The security here is formalized by saying that a party's view in a protocol execution be simulatable given only its input and output. 
+\begin{description}
+\item[Definition of security.] We begin with the following notation:
+\begin{itemize}
+    \item Let $f=(f_1,f_2)$ be a PPT functionality and let $\pi$ be a two-party protocol for computing $f$.
+    \item The view of the $i$th, where $i=1$ (resp. $i=2$), party is ${\sf view}^\pi_i(x,y,n)$ and equals $(w,r^i;m^i_1,\cdots,m^i_t)$, where $w=x$ (resp. $w=y$). $r^i$ is the internal randomness of $i$th party and $m^i_\ell$ is the $\ell$th message that $i$th party received.
+    \item The output of the $i$th party is denoted by $\out^\pi_i(x,y,n)$. We denote the joint output of both parties by $\out^\pi(x,y,n)=(\out^\pi_1(x,y,n))(\out^\pi_2(x,y,n))$.
+\end{itemize}
+\end{description}
+\begin{definition}Let $f=(f_1,f_2)$ be a functionality. We say that {\sf$\pi$ securely computes $f$ in the presence of static semi-honest adversarits} if there exists PPT algorithm $\calS_1$ and $\calS_2$ such that
+\begin{align*}
+    \{(\calS_1(1^n,x,f_1(x,y)), f(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{(\view^\pi_1(x,y,n),\out^\pi(x,y,n))\}_{x,y,n} \\
+    \{(\calS_2(1^n,x,f_2(x,y)), f(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{(\view^\pi_2(x,y,n),\out^\pi(x,y,n))\}_{x,y,n}
+\end{align*}
+where $x,y\in\{0,1\}^*$ such that $\abs{x} = \abs{y}$, and $n\in\N$.
+\end{definition}
+Observe that for probabilistic functionalities, the simulator needs to generate a joint distribution of $(\view_i^\pi(x,y), \out^\pi(x,y))$. We can obtain a simpler security formulation for deterministic functionalities:
+\begin{description}
+\item[Correctness,] meaning that the output of the parties is correct. Formally, it requires that there exists a negligible function $\mu$ such that for every $x,y\in\{0,1\}^*$ and every $n$
+    $$\Pr[\out^\pi(x,y,n)\neq f(x,y,n)]\leq\mu(n)$$
+\item[Privacy] requires that there exists PPT $\calS_1$ and $\calS_2$ such that
+\begin{align*}
+    \{\calS_1(1^n,x,f_1(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{\view^\pi_1(x,y,n)\}_{x,y,n} \\
+    \{\calS_2(1^n,x,f_2(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{\view^\pi_2(x,y,n)\}_{x,y,n} \\
+\end{align*}
+\end{description}
+\begin{remark} There are many problemss that become trivial in the case of semi-honest adversaries. Such problems include zero knowledge, commitment and coin-tossing.
+\end{remark}
+\subsection{Oblivious Transfer for Semi-Honest Adversaries}
+The bit oblivious transfer functionality is defined by $f((b_0,b_1), \sigma )=(\lambda,b_\sigma)$, where $b_0,b_1\in\{0,1\}$ and $\lambda$ denotes empty string.
+\subsubsection{Background and Tools}
+\begin{definition}[Trapdoor Permutations]
+Trapdoor permutations is a collection of functions $\{f_\alpha\}_\alpha$ accompanied by four PPT algorithms $I,S,F,F^{-1}$ such that:
+\begin{enumerate}
+\item $I(1^n)$ select a random $n$-bit index $\alpha$ of a premutation $f_\alpha$ and a corresponding trapdoor $\tau$. Let $I_1(1^n)\equiv\alpha$.
+\item $S(\alpha;r)$ samples an (almost uniform) element in the domain of $f_\alpha$. We assume $r\in\{0,1\}^n$.
+\item $F(\alpha,x)=f_\alpha(x)$
+\item $F^{-1}(\tau,y)=f^{-1}_\alpha(y)$
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Enhanced Trapdoor Permutations] A collection of {\sf trapdoor permutations} is a collection of {\sf enhanced trapdoor permutations} if for every non-uniform PPT adversary $\calA$ there exists a negligible function $\mu(\cdot)$ such that for every $n$,
+$$\Pr[\calA(1^n,\alpha,r)=f^{-1}(S(\alpha;r))]\leq\mu(n)$$
+where $\alpha\leftarrow I_1(1^n)$ and $r\stackrel{R}{\leftarrow}\{0,1\}^n$.
+\end{definition}
+
+\begin{definition}[Hard-Core Predicate] We say that $B$ is a {\sf hard-core predicate} of $(I,S,F,F^{-1})$ if for every non-uniform PPT adversary $\calA$ there exists a negligible function $\mu(\cdot)$ such that for every $n$,
+$$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$$
+\end{definition}
+\begin{adjustbox}{minipage=\linewidth,fbox}
+\begin{protocol}[Bit Oblivious Transfer]$ $
+    \begin{description}
+        \item[Inputs.] $P_1$ has
+    \end{description}
+\end{protocol}
+\end{adjustbox}
+\insertbibliography{crypto} 
+\nocite{*} 
