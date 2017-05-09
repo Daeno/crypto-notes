@@ -224,10 +224,10 @@
 
 \renewcommand\lextlinearrow[2]{%
   \setbox0\hbox{$\lextlineend\extlines{#2}$}%
-  \shortstack{$\mathrm{#1}$\\\addvbuffer[-.7ex -.3ex]{\usebox0}}%
+  \shortstack{$#1$\\\addvbuffer[-.7ex -.3ex]{\usebox0}}%
 }
 
 \renewcommand\rextlinearrow[2]{%
   \setbox0\hbox{$\extlines{#2}\rextlineend$}%
-  \shortstack{$\mathrm{#1}$\\\addvbuffer[-.7ex -.3ex]{\usebox0}}%
+  \shortstack{$#1$\\\addvbuffer[-.7ex -.3ex]{\usebox0}}%
 }

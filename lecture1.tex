@@ -2,7 +2,18 @@
 \vspace*{4mm} 
 
 \section{Introduction}
-Simulation is a way of comparig what happens in the "real world" to what happens in an "ideal world" where the primitive in question is {\it secure by definition}.
+Simulation is a way of comparig what happens in the "real world" to what happens in an "ideal world" where the primitive in question is {\it secure by definition}. We start our discussion from semantic security of an private-key encryption. And move on to two-party computation. The semi-honest adversary model is relativly easy and is discussed in Section 4. The rest of article focus on the malicious adversary model.
+
+\vspace{4mm}
+\begin{tabular}{|l|c|c|}
+\hline
+Functionality & Input & Output\\
+\hline
+(Sec. 5) Zero Knowledge & X & X\\
+(Sec. 6) Coin Tossing & X & O \\
+(Sec. 7) Oblivious Transfer & O & O \\
+\hline
+\end{tabular}
 
 \section{Semantic Security}
 We begin by recalling the definition of semantic security.
@@ -55,7 +66,7 @@ Observe that for probabilistic functionalities, the simulator needs to generate 
 \item[Privacy] requires that there exists PPT $\calS_1$ and $\calS_2$ such that
 \begin{align*}
     \{\calS_1(1^n,x,f_1(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{\view^\pi_1(x,y,n)\}_{x,y,n} \\
-    \{\calS_2(1^n,x,f_2(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{\view^\pi_2(x,y,n)\}_{x,y,n} \\
+    \{\calS_2(1^n,y,f_2(x,y))\}_{x,y,n} \stackrel{c}{\equiv} \{\view^\pi_2(x,y,n)\}_{x,y,n} \\
 \end{align*}
 \end{description}
 \begin{remark} There are many problemss that become trivial in the case of semi-honest adversaries. Such problems include zero knowledge, commitment and coin-tossing.
@@ -84,9 +95,28 @@ $$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$
 \begin{adjustbox}{minipage=\linewidth,fbox}
 \begin{protocol}[Bit Oblivious Transfer]$ $
     \begin{description}
-        \item[Inputs.] $P_1$ has
+        \item[Inputs.] $P_1$ has $(b_0,b_1)$ and $P_2$ has $\sigma\in\{0,1\}$. Both have $(I,S,F,F^{-1})$ and corresponding hard-core predicate $B$.
+        \item[The Protocol.] $ $\newline\newline
+        \begin{adjustbox}{minipage=0.6\linewidth}
+            \begin{tabular}{lcc}
+            $P_1((b_0,b_1))$ & & $P_2(\sigma)$ \\
+            $(\alpha,\tau)\gets I(1^n)$ & \rextlinearrow{\alpha}{24} & \\
+            & & $x_\sigma\gets S(\alpha)$\\
+            & & $y_{1-\sigma}\gets S(\alpha)$\\
+            & & compute $y_\sigma = F(\alpha,x_\sigma) $\\
+            & \lextlinearrow{y_0,y_1}{24} & \\
+            compute $x_0=F^{-1}(\tau,y_0)$ & & \\
+            $x_1=F^{-1}(\tau,y_1)$ & & \\
+            then \\
+            $\beta_i=B(\alpha,x_i)\oplus b_i$ & \rextlinearrow{\beta_0,\beta_1}{24}\\
+            & & compute $b_\sigma=B(\alpha,x_\sigma)\oplus\beta_\sigma$ \\
+            \end{tabular}
+        \end{adjustbox}
     \end{description}
 \end{protocol}
 \end{adjustbox}
+\vspace{2mm}
+
+The simulator is constructed as follows:
 \insertbibliography{crypto} 
 \nocite{*} 
