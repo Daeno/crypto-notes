@@ -86,12 +86,12 @@ Trapdoor permutations is a collection of functions $\{f_\alpha\}_\alpha$ accompa
 \item $F^{-1}(\tau,y)=f^{-1}_\alpha(y)$
 \end{enumerate}
 \end{definition}
+\YHnote{Need to check the security definition of T.P.}
 
 \begin{definition}[Enhanced Trapdoor Permutations] A collection of {\sf trapdoor permutations} is a collection of {\sf enhanced trapdoor permutations} if for every non-uniform PPT adversary $\calA$ there exists a negligible function $\mu(\cdot)$ such that for every $n$,
 $$\Pr[\calA(1^n,\alpha,r)=f^{-1}(S(\alpha;r))]\leq\mu(n)$$
 where $\alpha\leftarrow I_1(1^n)$ and $r\stackrel{R}{\leftarrow}\{0,1\}^n$.
 \end{definition}
-
 \begin{definition}[Hard-Core Predicate] We say that $B$ is a {\sf hard-core predicate} of $(I,S,F,F^{-1})$ if for every non-uniform PPT adversary $\calA$ there exists a negligible function $\mu(\cdot)$ such that for every $n$,
 $$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$$
 \end{definition}
@@ -102,18 +102,18 @@ $$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$
         \item[The Protocol.] $ $\newline\newline
         \begin{adjustbox}{minipage=0.6\linewidth}
             \begin{tabular}{lcc}
-            $P_1((b_0,b_1),r_1)$ & & $P_2(\sigma,(r_2^1,r_2^2))$ \\
+            $P_1((b_0,b_1);r_1)$ & & $P_2(\sigma;(r_0^2,r_1^2))$ \\
             \\
             $(\alpha,\tau)\gets I(1^n;r_1)$ & \rextlinearrow{\alpha}{24} & \\
-            & & $x_\sigma\gets S(\alpha;r_2^1)$\\
-            & & $y_{1-\sigma}\gets S(\alpha;r_2^2)$\\
+            & & $x_\sigma\gets S(\alpha;r_\sigma^2)$\\
+            & & $y_{1-\sigma}\gets S(\alpha;r_{1-\sigma}^2)$\\
             & & compute $y_\sigma = F(\alpha,x_\sigma) $\\
             & \lextlinearrow{y_0,y_1}{24} & \\
             compute $x_0=F^{-1}(\tau,y_0)$ & & \\
             $x_1=F^{-1}(\tau,y_1)$ & & \\
-            then \\
-            $\beta_i=B(\alpha,x_i)\oplus b_i$ & \rextlinearrow{\beta_0,\beta_1}{24}\\
-            & & compute $b_\sigma=B(\alpha,x_\sigma)\oplus\beta_\sigma$ \\
+            and \\ \\
+            $\beta_0=B(\alpha,x_0)\oplus b_0$ & \rextlinearrow{\beta_0,\beta_1}{24}\\
+            $\beta_1=B(\alpha,x_1)\oplus b_1$ & & compute $b_\sigma=B(\alpha,x_\sigma)\oplus\beta_\sigma$ \\
             \end{tabular}
         \end{adjustbox}
     \end{description}
@@ -121,51 +121,46 @@ $$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$
 \end{adjustbox}
 \vspace{2mm}
 
-The simulator is constructed as follows:
-\begin{description}
-\item[$P_1$ is currupted.] Construct simulator $S_1$ as follows: \\ \\
 \begin{algorithm}
 \SetKwInOut{Input}{Input}
 \SetKwInOut{Output}{Output}
 $S_1(1^n,(b_0,b_1);r,r_0,r_1)$\;
-\Input{The input of $P_1$ and the ideal output of $P_1$, denoted by $f_1(\cdot,\cdot)$.}
-\Output{A simulated view close to real view of $P_1.$}
-\caption{Simulator of corrupted $P_1$.}
+\Input{The input of $P_1$ and the ideal functionality output $f_1(\cdot,\cdot)$.}
+\Output{A simulated view close to real view of $P_1$.}
+\caption{Simulator of corrupted $P_1$.} \label{alg:bot-p1-sim}
 Initialize $P_1$ with random tape $r$\;
-Computes
-$(\alpha,\tau)\gets I(1^n;r), y_0\gets S(\alpha;r_0), y_1\gets S(\alpha;r_1)$\;
+Computes $(\alpha,\tau)\gets I(1^n;r)$\;
+Computes $y_0\gets S(\alpha;r_0), y_1\gets S(\alpha;r_1)$\;
 Output $((b_0,b_1),r;(y_0,y_1))$\;
 \end{algorithm}
-\begin{adjustbox}{minipage=0.8\linewidth,fbox,center}
-\begin{tabular}{lcc}
-            $P_1(\cdot,\cdot)$ & & $S_1(1^n,(b_0,b_1);r,r_0,r_1)$ \\
-            \\
-            & & Initialize $P_1$ with randomness $r$\\
-            & & computes $(\alpha,\tau)\gets I(1^n;r)$\\
-            & & $y_0\gets S(\alpha;r_0)$\\
-            & & $y_1\gets S(\alpha;r_1)$\\
-            & \lextlinearrow{y_0,y_1}{24} & \\
-            & & Output $((b_0,b_1),r;(y_0,y_1))$ \\
-    \end{tabular} \\
-\end{adjustbox} $ $\\ \\
+
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$S_2(1^n,\sigma,b_\sigma,;r,r_0,r_1)$\;
+\Input{The input of $P_2$ and the ideal functionality output $f_2(\cdot,\cdot)$.}
+\Output{A simulated view close to real view of $P_2$.}
+Initialize $P_2$ with random tape $(r_0,r_1)$\;
+Computes $(\alpha,\tau)\gets I(1^n;r)$\;
+Computes $x_\sigma\gets S(\alpha;r_\sigma), y_{1-\sigma}\gets S(\alpha;r_{1-\sigma})$\;
+Set $x_{1-\sigma}=F^{-1}(\tau,y_{1-\sigma})$\;
+Compute $\beta_\sigma=B(\alpha,x_\sigma)\oplus b_\sigma$\;
+$\beta_{1-\sigma}=B(\alpha,x_{1-\sigma})$\;
+Output $(\sigma,r_0,r_1;\alpha,(\beta_0,\beta_1))$\;
+
+\caption{Simulator of corrupted $P_2$.} \label{alg:bot-p2-sim}
+\end{algorithm}
+
+\begin{description}
+\item[$P_1$ is currupted.] Construct simulator $S_1$ as Algorithm \ref{alg:bot-p1-sim}. \\
 We argue that the output of $S_1$ is statistically close to the view of corrupted $P_1$ with random tape equals to $r$. The simulator has no information about $P_2$'s input $\sigma$, so it cannot compute $y_\sigma=F(\alpha,x_\sigma)$. However, the definition of trapdoor permutation states that the output of $S(\alpha)$ is almost uniform. Thus,
     $$\{(F(\alpha,x_0),y_1)\}\stackrel{s}{\equiv}\{(y_0,y_1)\}\stackrel{s}{\equiv}\{(y_0,F(\alpha,x_1))\}$$
 where $x_0,x_1,y_0,y_1$ are sampled by $S(\alpha)$ with independent randomness. This implies
 $$\{S_1(1^n,(b_0,b_1))\}\sequiv\{\view^\pi_1((b_0,b_1),\sigma)\}$$
 \begin{remark}
-Step 1. of the simulator is necessary since it binds the view of simulator with the real view of $P_1$
+Step 1. of the simulator is necessary since it binds the view of simulator with the real view of $P_1$.
 \end{remark}
-\item[$P_2$ is corrupted.] Construct simulator $S_2$ as follow:
-\\ \\
-\begin{adjustbox}{minipage=0.8\linewidth,fbox,center}
-\begin{tabular}{lcc}
-            $S_2(1^n,\sigma,b_\sigma;r_0,r_1)$ & & $P_2(\cdot,\cdot)$ \\
-            Initialize $P_2$ with randomness \\
-            
-    \end{tabular} \\
-\end{adjustbox} $ $\\ \\
+\item[$P_2$ is corrupted.] Construct simulator $S_2$ as Algorithm \ref{alg:bot-p2-sim}:
 \end{description}
-
-
 \insertbibliography{crypto} 
 \nocite{*} 
