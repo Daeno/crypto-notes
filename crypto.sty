@@ -3,15 +3,21 @@
 \usepackage{enumitem,manyfoot,fullpage}
 \usepackage{subfig,tikz,framed}
 \usepackage{tabularx}
+\usepackage[ruled]{algorithm2e}
 \usepackage[a4paper, margin=0.8in]{geometry}
 
 \usepackage{verbatimbox}
 \usepackage{multirow}
 \usepackage{scalerel}
 \usepackage{adjustbox}
+\usepackage{xcolor}
 %\usepackage{tgheros}
 
 \hfuzz2pt
+
+% Self notes command
+\newcommand\YHnote[1]{\textcolor{red}{#1}}
+\newcommand\sequiv{\stackrel{s}{\equiv}}
 
 % environments
 \newtheorem{theorem}{Theorem}[section]

@@ -15,6 +15,9 @@ Functionality & Input & Output\\
 \hline
 \end{tabular}
 
+\section{Preliminaries and Notation}
+\YHnote{Lindel made some discussion on the order of quantifiers for computational indistinguishability. I should elaborate it.}
+
 \section{Semantic Security}
 We begin by recalling the definition of semantic security.
 \begin{definition}[Semantic Security] A {\it private-key encryption scheme} $(G,E,D)$ is {\bf semantically secure} (in the private-key model) if for every non-uniform probabilistic-polynomial time algorithm $\calA$, there exists a non-uniform probabilistic-polynomial time algorithm $\calA'$ such that for every probability ensemble $\{X_n\}_{n\in\N}$ with $\abs{X_n}\leq poly(n)$, every pair of polynomially-bounded functions $f,h:\{0,1\}^*\to\{0,1\}^*$, every positive polynomial $p(\cdot)$ and all sufficiently large $n$:
@@ -99,10 +102,11 @@ $$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$
         \item[The Protocol.] $ $\newline\newline
         \begin{adjustbox}{minipage=0.6\linewidth}
             \begin{tabular}{lcc}
-            $P_1((b_0,b_1))$ & & $P_2(\sigma)$ \\
-            $(\alpha,\tau)\gets I(1^n)$ & \rextlinearrow{\alpha}{24} & \\
-            & & $x_\sigma\gets S(\alpha)$\\
-            & & $y_{1-\sigma}\gets S(\alpha)$\\
+            $P_1((b_0,b_1),r_1)$ & & $P_2(\sigma,(r_2^1,r_2^2))$ \\
+            \\
+            $(\alpha,\tau)\gets I(1^n;r_1)$ & \rextlinearrow{\alpha}{24} & \\
+            & & $x_\sigma\gets S(\alpha;r_2^1)$\\
+            & & $y_{1-\sigma}\gets S(\alpha;r_2^2)$\\
             & & compute $y_\sigma = F(\alpha,x_\sigma) $\\
             & \lextlinearrow{y_0,y_1}{24} & \\
             compute $x_0=F^{-1}(\tau,y_0)$ & & \\
@@ -118,5 +122,50 @@ $$\Pr[\calA(1^n,\alpha,r)=B(\alpha, f^{-1}(S(\alpha;r)))]\leq\frac{1}{2}+\mu(n)$
 \vspace{2mm}
 
 The simulator is constructed as follows:
+\begin{description}
+\item[$P_1$ is currupted.] Construct simulator $S_1$ as follows: \\ \\
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$S_1(1^n,(b_0,b_1);r,r_0,r_1)$\;
+\Input{The input of $P_1$ and the ideal output of $P_1$, denoted by $f_1(\cdot,\cdot)$.}
+\Output{A simulated view close to real view of $P_1.$}
+\caption{Simulator of corrupted $P_1$.}
+Initialize $P_1$ with random tape $r$\;
+Computes
+$(\alpha,\tau)\gets I(1^n;r), y_0\gets S(\alpha;r_0), y_1\gets S(\alpha;r_1)$\;
+Output $((b_0,b_1),r;(y_0,y_1))$\;
+\end{algorithm}
+\begin{adjustbox}{minipage=0.8\linewidth,fbox,center}
+\begin{tabular}{lcc}
+            $P_1(\cdot,\cdot)$ & & $S_1(1^n,(b_0,b_1);r,r_0,r_1)$ \\
+            \\
+            & & Initialize $P_1$ with randomness $r$\\
+            & & computes $(\alpha,\tau)\gets I(1^n;r)$\\
+            & & $y_0\gets S(\alpha;r_0)$\\
+            & & $y_1\gets S(\alpha;r_1)$\\
+            & \lextlinearrow{y_0,y_1}{24} & \\
+            & & Output $((b_0,b_1),r;(y_0,y_1))$ \\
+    \end{tabular} \\
+\end{adjustbox} $ $\\ \\
+We argue that the output of $S_1$ is statistically close to the view of corrupted $P_1$ with random tape equals to $r$. The simulator has no information about $P_2$'s input $\sigma$, so it cannot compute $y_\sigma=F(\alpha,x_\sigma)$. However, the definition of trapdoor permutation states that the output of $S(\alpha)$ is almost uniform. Thus,
+    $$\{(F(\alpha,x_0),y_1)\}\stackrel{s}{\equiv}\{(y_0,y_1)\}\stackrel{s}{\equiv}\{(y_0,F(\alpha,x_1))\}$$
+where $x_0,x_1,y_0,y_1$ are sampled by $S(\alpha)$ with independent randomness. This implies
+$$\{S_1(1^n,(b_0,b_1))\}\sequiv\{\view^\pi_1((b_0,b_1),\sigma)\}$$
+\begin{remark}
+Step 1. of the simulator is necessary since it binds the view of simulator with the real view of $P_1$
+\end{remark}
+\item[$P_2$ is corrupted.] Construct simulator $S_2$ as follow:
+\\ \\
+\begin{adjustbox}{minipage=0.8\linewidth,fbox,center}
+\begin{tabular}{lcc}
+            $S_2(1^n,\sigma,b_\sigma;r_0,r_1)$ & & $P_2(\cdot,\cdot)$ \\
+            Initialize $P_2$ with randomness \\
+            
+    \end{tabular} \\
+\end{adjustbox} $ $\\ \\
+\end{description}
+
+
 \insertbibliography{crypto} 
 \nocite{*} 
