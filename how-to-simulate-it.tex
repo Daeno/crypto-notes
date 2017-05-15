@@ -163,5 +163,84 @@ Step 1. of the simulator is necessary since it binds the view of simulator with 
 \item[$P_2$ is corrupted.] Construct simulator $S_2$ as Algorithm \ref{alg:bot-p2-sim}:
 
 \end{description}
-\insertbibliography{crypto} 
+
+\section{Zero Knowledge}
+\subsection{Notations}
+In this section, the {\it security parameter} is set to be the length of common input, namely $n=\abs{x}$. Let $A$ and $B$ be a probabilistic polynomial-time machine. We denote by $\out_B(A(x,y,r_A),B(x,z,r_B))$ the output of party $B$ in an interactive execution with party $A$, on public input $x$, where $A$ has auxiliary-input $y$ and random-tape $r_A$, and $B$ has auxiliary input $z$ and random-tape $r_B$.
+\begin{definition}[Interactive Proof System] {\it(Informal)} An interactive proof system for a language $L$ involves a prover $P$ and a verifier $V$. The prover $P$ tries to convince $V$ that the common input $x$ is in language $L$. There are two properties for such a proof system:
+\begin{enumerate}
+\item {\it Completeness:} Exists honest $P$ such that $\out_V(P(x,w,r_P),V(x,r_V))=1$ with overwhelmly high probability on input $x\in L$.
+\item {\it Soundness:} For all (cheating) prover $P^*$, $\out_V(P^*(x,z,r_P),V(x,r_V))=1$ with at most negiligible probability on input $x\notin L$.
+\end{enumerate}
+\end{definition}
+
+\begin{definition}[Black-box Computational Zero Knowledge] Let $(P,V)$ be an interactive proof system for an $\NP$-language $L$, and let $R_L$ be the $\NP$-relation. We say that $(P,V)$ is {\sf black-box computational zero knowledge} if there exists a PPT oracle machine $\simu$ such that for every PPT algorithm $V^*$, it holds that:
+$$\{\out_{V^*}(P(x,w),V^*(x,z))\}_{(x,w)\in R_L,z\in\{0,1\}^*}\cequiv\{\simu^{V^*(x,z,r,\cdot)}(x)\}_{x\in L,z\in\{0,1\}^*}$$
+where $r$ is uniformly distributed, and where $V^*(x,z,r,\cdot)$ denotes the next-message function of $V^*$ when the common input $x$, auxiliary input $z$ and random-tape $r$ are fixed.
+\end{definition}
+
+\begin{remark} Noted that we only care the distribution when $(x,w)\in R_L$. Why?
+\end{remark}
+\begin{remark} We fix the random tape of the $V^*$. In most case, this does not help since the adversary can ignore the random-tape and use a pseudorandom runction applied to its history with an internally hardcoded key.
+\end{remark}
+
+\subsection{Preliminaries - Commitment Schemes}
+Let $\com$ be a non-interactive perfectly binding commitment scheme. Let $c=\com(x;r)$ denote a commitment to $x$ using randomness $r$ omitting the security parameter. Let $\com(x)$ denote a commitment using uniform randomness. Let $\decom(c)$ denote the decommitment value of $c$; if $c=\com(x;r)$ then $\decom(c)=(x,r)$.
+There are two properties of a commitment scheme:
+\begin{enumerate}
+\item {\it (Computational) Hiding.} Informally, it states that the commitments to different strings are (computationally) indistinguishable. For bit commitmens, it means $\calC_0\cequiv\calC_1$ where $\calC_b\equiv\{\com(b;U_n)\}_{n\in\N}$.
+\item {\it (Perfect) Binding.} All commitments of different values are disjoint; for all $x_1\neq x_2$ it holds that $\calC_{x_1}\cap\calC_{x_2}$ where $\calC_{x}=\{c|\exists r:c=\com(x;r)\}$.
+\end{enumerate}
+\begin{description}
+\item[LR-security of commitments.] Define the oracle as $LR^b_{\com}(x_0,x_1)=\begin{cases}\com(x_b) & \text{if } \abs{x_0}=\abs{x_1},\\ \perp & \text{otherwise} \end{cases}$. The experiment is as follows:
+\begin{description}
+\item[Experiment ${\sf LR}$-commit$_{\com,\calA}(1^n)$:]$ $
+\begin{enumerate}
+\item Choose a random $b\gets\{0,1\}$.
+\item Set $b'\gets\calA^{{\sf LR}^b_{\com}(\cdot,\cdot)}(1^n)$.
+\item Output 1 iff $b'=b$.
+\end{enumerate}
+\end{description}
+\end{description}
+\begin{theorem}
+If $\com$ is a {\it non-interactive perfectly-binding commitment scheme}, then for every non-uniform PPT adversary $\calA$ there exists a negligible function $\mu(\cdot)$ such that
+$$\Pr[\text{\sf LR-commit}_{\com,\calA}(1^n)=1]\leq\frac{1}{2}+\mu(n).$$
+\end{theorem}
+\subsection{Non-Constant Round Zero Knowledge}
+
+\begin{adjustbox}{minipage=1\linewidth,fbox}
+\begin{protocol}[Zero-Knowledge Proof for 3-Coloring]$ $
+    \begin{description}
+        \item[Common input.] a graph $G=(V,E)$ with $V=\{v_1,\cdots,v_n\}$
+        \item[Auxiliary input for $P$.] a coloring of the graph $\psi:V\to\{1,2,3\}$ such that 
+        
+        for every $(v_i,v_j)\in E$ it holds that $\psi(v_i)\neq\psi(v_j)$
+        \item[The proof system:] Repeating the following $n\cdot\abs{E}$ times:
+        $ $\newline\newline
+        \begin{adjustbox}{minipage=0.6\linewidth}
+            \begin{tabular}{lcl}
+            $P(G,\psi;r_P)$ & & $V(G;r_V)$ \\
+            \\
+            Select a random permutation \\
+            $\pi$ over $\{1,2,3\}$, define \\
+            $\phi(v)=\pi(\psi(v))$ for all $v\in V$.\\
+            Computes $c_i=\com(\phi(v_i))$ \\
+            for all $i\in[n]$ & \rextlinearrow{(c_1,\cdots,c_n)}{24} & \\
+            & & $e\in_R E$\\
+            & \lextlinearrow{e}{24} &\\ 
+            Let $e=(v_i,v_j)$, send \\
+            & \rextlinearrow{\decom(c_i),\decom(c_j)}{24} & \\
+            & & Check $\phi(v_i)$ and $\phi(v_j)$ \\
+            & & is valid and $\phi(v_i)\neq\phi(v_j)$.\\
+            & & if not, output 0. \\
+            \end{tabular}
+        \end{adjustbox}
+        \\ \\
+        if all checks pass in all iterations, the verifier outputs 1.
+    \end{description}
+\end{protocol}
+\end{adjustbox}
+\\ \\
+Regarding the {\it soundness} of the proof system. In each iteration, the cheating prover can only success if it guess the query of honest verifier, the probability of guessing right is $\frac{1}{\abs{E}}$.
+\insertbibliography{crypto}
 \nocite{*} 
