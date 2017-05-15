@@ -390,6 +390,24 @@ which might be exponential in $n$.
 \begin{theorem} Let $\com_h$ and $\com$ be {\it perfectly-hiding} and {\it perfectly-binding} commitment schemes, respectively, with security in the presence of non-uniform PPT adversaries. Then Protocol \ref{proto:zk-3-color-constant} is black-box computational zero knowledge with an expected polynomial-time simulator.
 \end{theorem}
 \begin{proof}
+The simulator is stated as Algorithm \ref{alg:zk-3-color-constant-sim}. We have three claims to complete our proof.
+\begin{claim} Algorithm \ref{alg:zk-3-color-constant-sim} runs in expected polynomial time in $n$.
+By Chernoff bound, we have $\widetilde{\epsilon}$ is not within a constant factor of $\epsilon(n)$ is at most $2^{-n}$.
+Consider two cases:
+\begin{enumerate}
+\item $\widetilde{\epsilon}$ is not within a constant factor of $\epsilon(n)$.
+	The running-time is bounded by $2^{n}$ and this happens with probability $2^{-n}$. This add a total $poly(n)$ to expected running-time.
+\item $\widetilde{\epsilon}/\epsilon=O(1)$.
+We can bound the expected running-time of $\simu$ by
+$$poly(n)\cdot\epsilon(n)\cdot(\frac{12n}{\epsilon(n)}+n\cdot\frac{n}{\widetilde{\epsilon}})=poly(n)$$
+\end{enumerate}
+\end{claim}
+\begin{claim} The probability that Algorithm \ref{alg:zk-3-color-constant-sim} outputs {\sf fails} is negligible.
+Notice that:
+$$\Pr[\simu \text{outputs \sf fails}]=\Pr[\text{does not obtain vaild decommitment in the loop}]+\Pr[\text{runs for }2^n\text{steps}]$$
+We already saw that $\simu$ runs in expected poly-time, therefore the probability that it runs for $2^n$ steps is negligible.
+Now consider the case the $\simu$ does not obtain valid in all $n\cdot\frac{n}{\widetilde{\epsilon}}$ attemps. Recall that $\epsilon(n)$ denotes the probability that $V^*$ decommits when given commitments to all zeros. Next there exists an negligible function $\mu(\cdot)$ such that $V^*$ decommits when given commitments in line 20 of Algorithm \ref{alg:zk-3-color-constant-sim}.
+\end{claim}
 
 \begin{algorithm}
 \SetKwInOut{Input}{Input}
@@ -405,7 +423,28 @@ $\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
 }\Else{
     
     Let $q=(e_1,\cdots,e_N)$ be the decommitted value.\;
-    Generate $N$ vectors of commitments $\vec{c_1},\cdots,\vec{c_N}$ as original protocol.
+    $m\gets 0$\;
+    $ctr\gets 0$
+    \While{$m<12n$}{
+    	$ctr\gets ctr+1$
+    	execute {\bf Step 4}\;
+	\If{$\decom_h(c)$ is valid}{
+		$m\gets m+1$\;
+	}
+    }
+    $\widetilde{\epsilon}\gets \frac{m}{ctr}$\;
+    \For{$i=1,\cdots,n$}{
+    \For{$j=1,\cdots ,n / \widetilde{\epsilon} $} {
+    Generate $N$ vectors of commitments $\vec{c_1},\cdots,\vec{c_N}$ as original protocol.\;
+    	\If{$V^*$ provides a valid decommitment to $q$}{
+		{\bf break}\;
+    	}
+	\If{$V^*$ provides a valid decommitment to $q'\neq q$}{
+		{\bf output} {\sf ambiguous}\; {\bf halts}\;
+	}
+	\If{the total running time $> 2^{-n}$}{{\bf output} {\sf fails}\;}
+    }}
+    Completes the proof by handing $V^*$ decommitments.
 }
 
 \caption{Simulator of Protocol \ref{proto:zk-3-color-constant}.} \label{alg:zk-3-color-constant-sim}
