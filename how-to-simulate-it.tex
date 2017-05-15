@@ -238,9 +238,54 @@ $$\Pr[\text{\sf LR-commit}_{\com,\calA}(1^n)=1]\leq\frac{1}{2}+\mu(n).$$
         \\ \\
         if all checks pass in all iterations, the verifier outputs 1.
     \end{description}
+    \label{proto:zk-3-color-nonconstant}
 \end{protocol}
 \end{adjustbox}
 \\ \\
 Regarding the {\it soundness} of the proof system. In each iteration, the cheating prover can only success if it guess the query of honest verifier, the probability of guessing right is $\frac{1}{\abs{E}}$.
+\subsubsection{The Rewinding Technique and Formal Proof of Security}
+We begin by giving an intuition of the simulator process when we model the commitments as perfect envelopes that reveal nothing until opened (in constrast to our real $\com$, which is computationally-hiding). 
+\begin{enumerate}
+\item The simulator first guess a random edge $e=(v_i,v_j)\in_R E$ with the hope that the verifier will query that edge. 
+\item The simulator then sends the verifier commitments to a coloring such that $v_i$ and $v_j$ is given different colors in $\{1,2,3\}$ and the rest is set to zero.
+\item If the verifier replies with the edge $e'=e$, the simulator opens the envelopes of $v_i$ and $v_j$ and the simulation of this iteration is complete.
+\item Otherwise the simulator rewinds the verifier to the beginning of the iteration and tries again with fresh randomness.
+\end{enumerate}
+\begin{description}[leftmargin=0cm]
+\item[On dealing with aborts.] One strategy is to state that if the verifier returns an illegal value, then the honest prover halts. However, in this case, it is easier for our proof of security to state that the honest prover interpret any invalid reply as a default edge.
+\end{description}
+The expected number of repetitions in one iteration is $\abs{E}$, and probability that more than $n\cdot\abs{E}$ repetitions are needed is negligible. 
+\begin{remark} How is rewinding possible? And why does the existence of simulator not contradict soundness?
+\end{remark}
+
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
+\Input{$G=(V,E)$, with $V=\{v_1,\cdots,v_n\}$}
+\Output{A simulated view close to real view of $P_2$.}
+Initializes the message history transcript $\vec{m}\gets\lambda$\;
+\Repeat{$n\cdot\abs{E}$ times}{
+    \For{$j=1,\cdots,n\cdot\abs{E}$}{
+        $(v_k,v_l)\in_R E$\;
+        Choose $\phi(v)$ such that $\phi(v_k)\in_R\{1,2,3\}$ and $\phi(v_l)\in_R\{1,2,3\}\backslash\{\phi(v_k)\}$. For all other $v_i\in V\backslash\{v_k,v_l\},\phi(v_i)=0$\;
+        \For{$i=1,\cdots,n$}{$c_i=\com(\phi(v_i))$}
+        "Send" $(c_1,\cdots,c_n)$ to $V^*$. and Let $e\in E$ be the reply\;
+        \If{$e=(v_k,v_l)$}{
+            Update the message history transcript as
+            $\vec{m}\gets(\vec{m},(c_1,\cdots,c_n),(\decom(c_k),\decom(c_l)))$\;
+            $\bf break$
+        }
+        \Else{
+            "rewind" the verifier to the beginning of for loop\;
+        }
+    }
+    Output $\perp$
+}
+Output $\vec{m}$\;
+
+\caption{Simulator of Protocol \ref{proto:zk-3-color-nonconstant}.} \label{alg:zk-3-color-nonconstant-sim}
+\end{algorithm}
+
 \insertbibliography{crypto}
 \nocite{*} 
