@@ -406,7 +406,16 @@ $$poly(n)\cdot\epsilon(n)\cdot(\frac{12n}{\epsilon(n)}+n\cdot\frac{n}{\widetilde
 Notice that:
 $$\Pr[\simu \text{outputs \sf fails}]=\Pr[\text{does not obtain vaild decommitment in the loop}]+\Pr[\text{runs for }2^n\text{steps}]$$
 We already saw that $\simu$ runs in expected poly-time, therefore the probability that it runs for $2^n$ steps is negligible.
-Now consider the case the $\simu$ does not obtain valid in all $n\cdot\frac{n}{\widetilde{\epsilon}}$ attemps. Recall that $\epsilon(n)$ denotes the probability that $V^*$ decommits when given commitments to all zeros. Next there exists an negligible function $\mu(\cdot)$ such that $V^*$ decommits when given commitments in line 20 of Algorithm \ref{alg:zk-3-color-constant-sim}.
+Now consider the case the $\simu$ does not obtain valid in all $n\cdot\frac{n}{\widetilde{\epsilon}}$ attemps. Recall that $\epsilon(n)$ denotes the probability that $V^*$ decommits when given commitments to all zeros. Next there exists an negligible function $\mu(\cdot)$ such that $V^*$ decommits when given commitments in line 20 of Algorithm \ref{alg:zk-3-color-constant-sim}. $\mu(n)$ needs to be negligible or $V^*$ can be used to break {\it computationally-hiding} of $Com_h$. Now consider following cases:
+\begin{enumerate}
+\item $\epsilon(n)\leq 2\mu(n)$: This means $V^*$ decommits its query string with negligible probability. The probability of $\simu$ reaches the rewinding phase is negligible.
+\item $\epsilon(n)> 2\mu(n)$: We have $\frac{1}{\epsilon(n)-\mu(n)}<\frac{2}{\epsilon(n)}$. The expected number of rewindings is bounded by $O(1/\widetilde{\epsilon})$ assuming $\widetilde{\epsilon}/\epsilon=O(1)$. By Markov's inequality, the probability that $\simu$ tries more than $n/\widetilde{\epsilon}$ iterations in any $n$ repetitions is at most $O(1/n)$. All repetitions fails with probability at most $O(1/n)^n$.
+The case that $\widetilde{\epsilon}$ is not within a constant factor of $\epsilon(n)$ is negligible.
+\end{enumerate}
+\end{claim}
+
+\begin{claim} The probability that $\simu$ outputs {\sf ambiguous} is negligible in $n$.
+Intuitively, if there exists an infinite series of inputs for which $\simu$ outputs {\sf ambiguous} with non-negligible probability, then this can be used to break the computational binding of $\com_h$.
 \end{claim}
 
 \begin{algorithm}
@@ -451,6 +460,10 @@ $\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
 \end{algorithm}
 
 \end{proof}
+
+\section{Defining Security for Malicious Adversaries}
+\subsection{The Definition}
+
 
 
 \insertbibliography{crypto}
