@@ -264,7 +264,7 @@ The expected number of repetitions in one iteration is $\abs{E}$, and probabilit
 \SetKwInOut{Output}{Output}
 $\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
 \Input{$G=(V,E)$, with $V=\{v_1,\cdots,v_n\}$}
-\Output{A simulated view close to real view of $P_2$.}
+\Output{A simulated view close to real view of $V^*$.}
 Initializes the message history transcript $\vec{m}\gets\lambda$\;
 \Repeat{$n\cdot\abs{E}$ times}{
     \For{$j=1,\cdots,n\cdot\abs{E}$}{
@@ -356,8 +356,9 @@ The solution presented by Goldreich and Kahan is to simply have the verifier com
             \\
             Send the first message, denoted 
             \\by $\alpha$ of $\com_h$ & \rextlinearrow{\alpha}{15} & \\
-            & & choose $N\stackrel{def}{=}n\cdot\abs{E}$ random edges \\
-            && $q=(e_1,\cdots,e_N)$ where $e_i\in E$ \\
+            & & choose $N\stackrel{def}{=}n\cdot\abs{E}$ random \\
+            & & edges $q=(e_1,\cdots,e_N)$, \\
+            & & where $e_i\in E$ \\
             &\lextlinearrow{c}{15}& $c=\com_h(q)$\\
             Continue as basic protocol \ref{proto:zk-3-color-nonconstant}&&\\
             & \rextlinearrow{\com(\phi(v))}{15} & \\
@@ -383,6 +384,35 @@ $q=(e_1,\cdots,e_N)$.
 \item $\simu$ rewinds $V^*$, send a new $\com(\phi(v))$ that suit $q$. Repeat this step until $V^*$ send a valid decommitment
 \item $\simu$ sends $V^*$ the decommitment to the nodes on the committed edge and outputs whatever $V^*$ outputs.
 \end{enumerate}
-There are two issues in this simple simulator. First, since the  
+There are two issues in this simple simulator. First, since the commitment to $q$ is perfectly hiding and thus only {\it computationally-binding}. It is possible that the $V^*$ decommits to a valid $q'\neq q$. Second, we are not able to show that the simulator is running in expected polynomial-time. Let $\epsilon$ denote the probability that $V^*$ does not abort. At first glance, one may conclude that the expected running time of the simulator is $(1-\epsilon)+\epsilon\cdot\frac{1}{\epsilon}$. However this is only in the case that commitment is modeled as "perfect envelopes". The true running is:
+$$poly(n)\cdot(1-\epsilon(n)+\epsilon(n)\cdot\frac{1}{\epsilon(n)-\mu(n)}),$$
+which might be exponential in $n$.
+\begin{theorem} Let $\com_h$ and $\com$ be {\it perfectly-hiding} and {\it perfectly-binding} commitment schemes, respectively, with security in the presence of non-uniform PPT adversaries. Then Protocol \ref{proto:zk-3-color-constant} is black-box computational zero knowledge with an expected polynomial-time simulator.
+\end{theorem}
+\begin{proof}
+
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
+\Input{$G=(V,E)$, with $V=\{v_1,\cdots,v_n\}$}
+\Output{A simulated view close to real view of $V^*$.}
+"Send" $V^*$ the first message of $\com_h$\;
+"Receive" from $V^*$ an commitment $c$ to some query string $q=(e_1,\cdots,e_N),N=n\cdot\abs{E}$ and receive back its reply\;
+"Send" $V^*$ $N$ vectors of $n$ commitments to $0$\;
+\If{$V^*$ {\bf aborts} or $\decom_h(c)$ is invalid}{
+    {\bf Output} $\perp$
+}\Else{
+    
+    Let $q=(e_1,\cdots,e_N)$ be the decommitted value.\;
+    Generate $N$ vectors of commitments $\vec{c_1},\cdots,\vec{c_N}$ as original protocol.
+}
+
+\caption{Simulator of Protocol \ref{proto:zk-3-color-constant}.} \label{alg:zk-3-color-constant-sim}
+\end{algorithm}
+
+\end{proof}
+
+
 \insertbibliography{crypto}
 \nocite{*} 
