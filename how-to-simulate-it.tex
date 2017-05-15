@@ -49,7 +49,7 @@ The {\it semi-honest adversaries} in two-party computation is an adversary that 
 The goal of simulator is to generate the view only from a party's input and output. The security here is formalized by saying that a party's view in a protocol execution be simulatable given only its input and output. 
 \begin{description}
 \item[Definition of security.] We begin with the following notation:
-\begin{itemize}
+\begin{itemize}[leftmargin=0em]
     \item Let $f=(f_1,f_2)$ be a PPT functionality and let $\pi$ be a two-party protocol for computing $f$.
     \item The view of the $i$th, where $i=1$ (resp. $i=2$), party is ${\sf view}^\pi_i(x,y,n)$ and equals $(w,r^i;m^i_1,\cdots,m^i_t)$, where $w=x$ (resp. $w=y$). $r^i$ is the internal randomness of $i$th party and $m^i_\ell$ is the $\ell$th message that $i$th party received.
     \item The output of the $i$th party is denoted by $\out^\pi_i(x,y,n)$. We denote the joint output of both parties by $\out^\pi(x,y,n)=(\out^\pi_1(x,y,n))(\out^\pi_2(x,y,n))$.
@@ -178,7 +178,7 @@ In this section, the {\it security parameter} is set to be the length of common 
 $$\{\out_{V^*}(P(x,w),V^*(x,z))\}_{(x,w)\in R_L,z\in\{0,1\}^*}\cequiv\{\simu^{V^*(x,z,r,\cdot)}(x)\}_{x\in L,z\in\{0,1\}^*}$$
 where $r$ is uniformly distributed, and where $V^*(x,z,r,\cdot)$ denotes the next-message function of $V^*$ when the common input $x$, auxiliary input $z$ and random-tape $r$ are fixed.
 \end{definition}
-
+We only consider the output of $V^*$ in our definition, due to the fact that there exists an adversarial $V^*$ that outputs its view. Thus one may equivanlently consider the view of the verifier and its output.
 \begin{remark} Noted that we only care the distribution when $(x,w)\in R_L$. Why?
 \end{remark}
 \begin{remark} We fix the random tape of the $V^*$. In most case, this does not help since the adversary can ignore the random-tape and use a pseudorandom runction applied to its history with an internally hardcoded key.
@@ -236,7 +236,7 @@ $$\Pr[\text{\sf LR-commit}_{\com,\calA}(1^n)=1]\leq\frac{1}{2}+\mu(n).$$
             \end{tabular}
         \end{adjustbox}
         \\ \\
-        if all checks pass in all iterations, the verifier outputs 1.
+        If all checks pass in all iterations, the verifier outputs 1.
     \end{description}
     \label{proto:zk-3-color-nonconstant}
 \end{protocol}
@@ -251,6 +251,7 @@ We begin by giving an intuition of the simulator process when we model the commi
 \item If the verifier replies with the edge $e'=e$, the simulator opens the envelopes of $v_i$ and $v_j$ and the simulation of this iteration is complete.
 \item Otherwise the simulator rewinds the verifier to the beginning of the iteration and tries again with fresh randomness.
 \end{enumerate}
+Note that this simulator output a view that is identical to the real view within {\bf expected} polynomial-time, while the security definition requires $\simu$ to be a PPT algorithm. Therefore, some modifications are required as we will see in Algorithm \ref{alg:zk-3-color-nonconstant-sim}.
 \begin{description}[leftmargin=0cm]
 \item[On dealing with aborts.] One strategy is to state that if the verifier returns an illegal value, then the honest prover halts. However, in this case, it is easier for our proof of security to state that the honest prover interpret any invalid reply as a default edge.
 \end{description}
@@ -267,25 +268,121 @@ $\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
 Initializes the message history transcript $\vec{m}\gets\lambda$\;
 \Repeat{$n\cdot\abs{E}$ times}{
     \For{$j=1,\cdots,n\cdot\abs{E}$}{
-        $(v_k,v_l)\in_R E$\;
-        Choose $\phi(v)$ such that $\phi(v_k)\in_R\{1,2,3\}$ and $\phi(v_l)\in_R\{1,2,3\}\backslash\{\phi(v_k)\}$. For all other $v_i\in V\backslash\{v_k,v_l\},\phi(v_i)=0$\;
+        $(v_k,v_\ell)\in_R E$\;
+        Choose $\phi(v)$ such that $\phi(v_k)\in_R\{1,2,3\}$ and $\phi(v_\ell)\in_R\{1,2,3\}\backslash\{\phi(v_k)\}$. For all other $v_i\in V\backslash\{v_k,v_\ell\},\phi(v_i)=0$\;
         \For{$i=1,\cdots,n$}{$c_i=\com(\phi(v_i))$}
         "Send" $(c_1,\cdots,c_n)$ to $V^*$. and Let $e\in E$ be the reply\;
-        \If{$e=(v_k,v_l)$}{
+        \If{$e=(v_k,v_\ell)$}{
             Update the message history transcript as
-            $\vec{m}\gets(\vec{m},(c_1,\cdots,c_n),(\decom(c_k),\decom(c_l)))$\;
+            $\vec{m}\gets(\vec{m},(c_1,\cdots,c_n),(\decom(c_k),\decom(c_\ell)))$\;
             $\bf break$
         }
         \Else{
             "rewind" the verifier to the beginning of for loop\;
         }
     }
-    Output $\perp$
+    {\bf Output} $\perp$
 }
-Output $\vec{m}$\;
-
+{\bf Output} $\vec{m}$\;
 \caption{Simulator of Protocol \ref{proto:zk-3-color-nonconstant}.} \label{alg:zk-3-color-nonconstant-sim}
 \end{algorithm}
 
+\begin{theorem}
+Let $\com$ be a {\it perfectly-binding commitment scheme with security for non-uniform adversaries.} Then, protocol \ref{proto:zk-3-color-nonconstant} is black-box computational zero knowledge.
+\end{theorem}
+\begin{proof}
+Our goal is to proof that Algorithm \ref{alg:zk-3-color-nonconstant-sim} generates a transcript that is indistinguishable from a real transcript. We begin by constructing an alternative simulator $\simu'$ which is given a valid coloring $\psi$ as auxiliary input. We can see that:
+$$\{\out_{V^*}\langle P(G,\psi),V^*(G,z) \rangle \}\equiv\{\simu'^{V^*(G,z,r,\cdot)}(G,\psi)|\simu'^{V^*(G,z,r,\cdot)}(G,\psi)\neq\perp\}$$
+This is achieved by the power of rewinding. Now since the probability that $\simu'$ fails in all $n\cdot\abs{E}$ repetitions is $(1-\frac{1}{\abs{E}})^{n\cdot\abs{E}}<e^{-n}$. There are $n\cdot\abs{E}$ iterations, by union bound we have, $\simu'$ output $\perp$ with probability less than $n\cdot\abs{E}\cdot e^{-n}$. This implies that
+$$\{\simu'^{V^*(G,z,r,\cdot)}(G,\psi)|\simu'^{V^*(G,z,r,\cdot)}(G,\psi)\neq\perp\}\cequiv\{\simu'^{V^*(G,z,r,\cdot)}(G,\psi)\}$$
+
+The remaining step is to prove the output of $\simu$ and $\simu'$ are computationally indistinguishable:
+$$\{\simu'^{V^*(G,z,r,\cdot)}(G,\psi)\}\cequiv\{\simu^{V^*(G,z,r,\cdot)}(G)\}.$$
+Assume toward contradiction, there exists a PPT verifier $V^*$, a PPT distinguisher D and a polynomial $p(\cdot)$ such that for an infinite sequence $(G,\psi,z)$ where $(G,\psi)\in R$ and $z\in\{0,1\}^*$,
+$$\abs{\Pr[D(G,\psi,z,\simu'^{V^*(G,z,r,\cdot)}(G,\psi))]-\Pr[D(G,\psi,z,S^{V^*(G,z,r,\cdot)}(G))]}\geq\frac{1}{p(n)}$$
+Now we construct a non-uniform PPT adversary $\calA$ for the commitment experiment {\sf LR-commit} as follows:
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$\calA^{{\sf LR}^b_{\com}(\cdot,\cdot),\simu'(\cdot,\cdot),V^*(\cdot,\cdot,\cdot;\cdot)}(1^n,(G,\psi,z);r)$\;
+\Input{security parameter $n$ and auxiliary input $(G,\psi,z)$ where $\abs{G}=n$}
+\Output{a guess of $b$ from ${\sf LR}^b_\com$}
+Initialize $V^*$ as $V^*(G,z,r;\cdot)$ where $r$ is uniformly random $G,z$ from auxiliary input\;
+Runs the instructions of $\simu'$ with input $(G,\psi)$ and oracle $V^*(x,z,r;\cdot)$ with some modifications. In particular, line 8 in Algorithm \ref{alg:zk-3-color-nonconstant-sim} is changed as follows:
+\begin{enumerate}
+\item For the randomly chosen edge $e=(v_k,v_\ell)$, $c_k=\com(\phi(v_k))$ and $c_l=\com(v_\ell)$ as the original algorithm.
+\item For all other $i\in\{1,\cdots,n\}\backslash\{k,\ell\}$, $c_i\gets LR^b_\com(0,\phi(v_i))$.
+\end{enumerate}
+{\bf Output} $D(\simu'^{V^*(G,z,r;\cdot)}(G,\psi))$\;
+\caption{Adversary of {\sf LR-commit}} \label{alg:zk-3-color-reduction}
+\end{algorithm}
+
+We can see that if $b=1$:
+\begin{align*}
+    \Pr[\text{\sf LR-commit}_{\com,\calA}=1|b=1]=\Pr[D(G,z,\simu'^{V^*(G,z,r;\cdot)}(G,\psi))=1]
+\end{align*}
+and if $b=0$:
+\begin{equation*}
+    \Pr[\text{\sf LR-commit}_{\com,\calA}=1|b=0]=\Pr[D(G,z,\simu^{V^*(G,z,r;\cdot)}(G))=1]
+\end{equation*}
+We have
+\begin{align*}
+    \Pr&[\text{\sf LR-commit}_{\com,\calA}=1] \\
+    &=\frac{1}{2}\Pr[\text{\sf LR-commit}_{\com,\calA}=1|b=1]+\frac{1}{2}\Pr[\text{\sf LR-commit}_{\com,\calA}=1|b=0] \\
+    &=\frac{1}{2}\Pr[D(G,z,\simu'^{V^*(G,z,r;\cdot)}(G,\psi))=1]+\frac{1}{2}\Pr[D(G,z,\simu^{V^*(G,z,r;\cdot)}(G))=0] \\
+    &=\frac{1}{2}\Pr[D(G,z,\simu'^{V^*(G,z,r;\cdot)}(G,\psi))=1]+(1-\frac{1}{2}\Pr[D(G,z,\simu^{V^*(G,z,r;\cdot)}(G))=0]) \\
+    &=\frac{1}{2} + \frac{1}{2}(\Pr[D(G,z,\simu'^{V^*(G,z,r;\cdot)}(G,\psi))=1]-\Pr[D(G,z,\simu^{V^*(G,z,r;\cdot)}(G))=1]) \\
+    &\geq\frac{1}{2}+\frac{1}{2p(n)}
+\end{align*}
+This contradict the security of $\com$. Thus we have $$\{\out_{V^*}(P(G,\psi),V^*(G,z))\}\cequiv\{\simu^{V^*(G,z,r;\cdot)}(G)\}$$
+\end{proof}
+
+\subsection{Constant-Round Zero Knowledge}
+Simply runs $n\cdot\abs{E}$ iteration in parallel is not working. The simulator will need to guess all $N\stackrel{def}{=} n\cdot\abs{E}$ edges correctly to success. The probability of guessing correctly is $\abs{E}^{-n\cdot\abs{E}}$, which is exponentially small. Note that rewinding doesn's solve this problem. The adversaries can simply choose a new randomness each time. In fact, Goldreich and Krawczyk showed that this paralle protocol is not {\it black-box zero-knowledge}, and no constant-round public-coin proof for a language not in ${\sf BPP}$ is boack-box zero-knowledge. Althougth there are no known constructions of adversaries, the lack of known attack is not sufficient to conclude that a protocol is secure. Thus, an alternative protocol is needed.
+
+The solution presented by Goldreich and Kahan is to simply have the verifier commit to its query before the prover sends its commitments. This prevents a malicious verifier from changing its query during rewinding. Details appear in Protocol \ref{proto:zk-3-color-constant}. \\ \\
+\begin{adjustbox}{minipage=1\linewidth,fbox}
+\begin{protocol}[The Goldreich-Kahan Proof System]$ $
+    \begin{description}
+        \item[Common input.] a graph $G=(V,E)$ with $V=\{v_1,\cdots,v_n\}$
+        \item[Auxiliary input for $P$.] a coloring of the graph $\psi:V\to\{1,2,3\}$ such that \\ 
+        for every $(v_i,v_j)\in E$ it holds that $\psi(v_i)\neq\psi(v_j)$
+        \item[Primitives] Let $\com$ be an non-interactive perfectly-binding commitment scheme,\\ $\com_h$ be a two-round perfectly-hiding commitment scheme. 
+        \item[The proof system:] Repeating the following $n\cdot\abs{E}$ times:
+        $ $\newline\newline
+        \begin{adjustbox}{minipage=0.6\linewidth}
+            \begin{tabular}{lcl}
+            $P(G,\psi;r_P)$ & & $V(G;r_V)$ \\
+            \\
+            Send the first message, denoted 
+            \\by $\alpha$ of $\com_h$ & \rextlinearrow{\alpha}{15} & \\
+            & & choose $N\stackrel{def}{=}n\cdot\abs{E}$ random edges \\
+            && $q=(e_1,\cdots,e_N)$ where $e_i\in E$ \\
+            &\lextlinearrow{c}{15}& $c=\com_h(q)$\\
+            Continue as basic protocol \ref{proto:zk-3-color-nonconstant}&&\\
+            & \rextlinearrow{\com(\phi(v))}{15} & \\
+            & \lextlinearrow{\decom(c)}{15}& send decommitmet of $c$\\
+            {\bf If} the decommitment is invalid \\
+            {\bf abort}& &\\
+            {\bf Otherwise} send the decommitment \\
+            of edges & \rextlinearrow{\decom(v)}{15}& If all checks pass outputs 1\\
+            \end{tabular}
+        \end{adjustbox}
+        \\
+    \end{description}
+    \label{proto:zk-3-color-constant}
+\end{protocol}
+\end{adjustbox}
+\\ \\
+First thought of a possible simulator is:
+\begin{enumerate}
+\item $\simu$ sends $alpha$ to $V^*$
+\item $\simu$ receives commitment $c$ from $V^*$
+\item $\simu$ sends $V^*$ garbage commitments and receives its decommitment. If the decommitment is not valid, it aborts. Otherwise, denote the decommitted string by 
+$q=(e_1,\cdots,e_N)$.
+\item $\simu$ rewinds $V^*$, send a new $\com(\phi(v))$ that suit $q$. Repeat this step until $V^*$ send a valid decommitment
+\item $\simu$ sends $V^*$ the decommitment to the nodes on the committed edge and outputs whatever $V^*$ outputs.
+\end{enumerate}
+There are two issues in this simple simulator. First, since the  
 \insertbibliography{crypto}
 \nocite{*} 
