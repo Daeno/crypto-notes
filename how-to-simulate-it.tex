@@ -523,5 +523,39 @@ A protocol that is secure under {\it sequential} composition maintains its secur
 \end{description}
 \begin{theorem} Let $p(n)$ be a polynomial, let $f_1,\cdots,f_{p(n)}$ be two-party probabilistic polynomial-time functionalities and let $\rho_1,\cdots,\rho_{p(n)}$ be protocols such that each $\rho_i$ securely computes $f_i$ in the presence of malicious adversaries. Let $g$ be a two-party functionality and let $\pi$ be a protocol that securely computes $g$ in $f_1,\cdots,f_{p(n)}$-{\sf hybrid model} in the presence of malicious adversaries. Then, $\pi^{\rho_1,\cdots,\rho_{p(n)}}$ securely computes $g$ in the presence of malicious adversaries.
 \end{theorem}
+
+\section{Determining Output - Coin Tossing}
+
+In this section, we present the protocol by Blum for tossing a single coin securely. The protocol securely computes the functionality $f_{ct}(\lambda,\lambda)=(U_1,U_1)$.
+Intuition behind protocol \ref{proto:ct-1bit} is simple: each party locally choose a random bit, and the result is the XOR of the two bits. But there is a problem that if $P_1$ sends its random bit to $P_2$ first, $P_2$ is able to cheat and force the output to be the result it desires. This can be fixed by requiring $P_2$ commit its random bit before $P_1$ sending the random bit.
+
+\begin{adjustbox}{minipage=1\linewidth,fbox}
+\begin{protocol}[Blum's Coin Tossing of a Single Bit]$ $
+    \begin{description}
+        \item[Security parameter:] Both parties have security parameter $1^n$
+        \item[The proof system:]
+        $ $\newline\newline
+        \begin{adjustbox}{minipage=0.6\linewidth}
+            \begin{tabular}{lcl}
+            $P_1(1^n)$ & & $P_2(1^n)$ \\
+            \\
+            Choose $b_1\in_R\{0,1\}$ and \\
+            a random $r\in\{0,1\}^n$ and send \\
+            $c=\com(b_1;r)$ & \rextlinearrow{c}{15} & \\
+            &\lextlinearrow{b_2}{15} & $b_2\in_R\{0,1\}$ \\
+            output $b=b_1\oplus b_2$ & \rextlinearrow{(b_1,r)}{15} & \\
+            & & checks that $c=\com(b_1;r)$ \\
+            & & {\bf If} yes, output $b=b_1\oplus b_2$\\
+            & & {\bf Otherwise} output $\perp$
+            \end{tabular}
+        \end{adjustbox}
+        \\
+    \end{description}
+    \label{proto:ct-1bit}
+\end{protocol}
+\end{adjustbox}
+\\ \\
+In the simulation, the simulator receives the output bit $b$ from the trusted party and needs to make the result of the execution equal $b$.
+
 \insertbibliography{crypto}
 \nocite{*} 
