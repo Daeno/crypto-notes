@@ -1,0 +1,47 @@
+\section{Defining Security for Malicious Adversaries}
+In this section, we present the definition of security for the case of malicious adversaries who may arbitrarily deviate from the protocol specification. The first problem we encounter is that the malicious adversaries may not use the given private input to interact with honest parties. Thus, it is not enough to require the existence of a simulator generating the view of the adversaries based on the prescribed input and output. Furthermore,
+\subsection{The Definition}
+
+\begin{description}[leftmargin=0em]
+\item[Execution in ideal mode.] In the case of no honest majority, it is in general impossible to achieve guaranteed output delivery and fairness. Let $P_1,P_2$ be the participating parties and let $i\in\{1,2\}$ be the index of corrupted party. An ideal execution for a function $f:\{0,1\}^*\times\{0,1\}^*\to\{0,1\}^*\times\{0,1\}^*$ proceeds as follows:
+\begin{description}
+\item[Inputs.] Let x be the input of $P_1$, y be the input of $P_2$. The adversary $\calA$ has an auxiliary input $z$.
+\item[Send inputs to trusted party.] The honest party $P_j$ sends its prescribed input to the trusted party. The corrupted party $P_i$ can:
+\begin{enumerate}
+\item send its prescribed input
+\item send some other input of same length
+\item send ${\sf abort}_i$
+Denote the pair of inputs sent to the trusted party by $(x',y')$.
+\end{enumerate}
+\item[Early abort option.] If the trusted party receives ${\sf abort}_i$. Sends ${\sf abort}_i$ to honest party $P_j$ and the ideal execution terminates.
+\item[Trusted party sends output to adversary.] Sends $f_i(x',y')$ to $P_i$
+\item[Adversary instructs trusted party to continue or halt] $\calA$ sends either {\sf continue} or ${\sf abort}_i$ to the trusted party. If it sends {\sf continue}, the trusted party sends $f_j(x',y')$ to the honest party $P_j$. Otherwise, the trusted party sends ${\sf abort}_i$ to $P_j$.
+\item[Outputs.] The honest party $P_i$ always outputs $f_i(x',y')$. The adversary $\calA$ outputs any arbitrary (probabilistic poly-time computable) function $g(x \text{ or } y,z,f_i(x',y'))$.
+\end{description}
+The {\sf ideal execution of }$f$ on inputs $(x,y)$, auxiliary input $z$ to $\calA$ and security parameter $n$, denoted by $\ideal_{f,\calA(z),i}(x,y,n)$, is defined as the {\bf output pair} of the honest party and the adversary $\calA$.
+
+\item[Execution in the real model.] Let $\pi$ be a two-party protocol for computing $f$.
+The {\sf real execution of }$f$ on inputs $(x,y)$, auxiliary input $z$ to $\calA$ and security parameter $n$, denoted by $\real_{\pi,\calA(z),i}(x,y,n)$, is defined as the {\bf output pair} of the honest party and the adversary $\calA$.
+\end{description}
+
+\begin{definition}Let $f$ be a {\it two-party functionality} and let $\pi$ be a {\it two-party protocol} that computes $f$. Protocol $\pi$ is said to {\sf securely compute} $f$ {\it with abort in the presence of static malicious adversaries} if for every non-uniform PPT adversary $\calA$ for the real model, there exists a non-uniform PPT adversary $\simu$ for the ideal model, such that for every $i\in\{1,2\}$,
+$$\{\ideal_{f,\simu(z),i}(x,y,n)\}_{x,y,z,n}\cequiv\{\real_{\pi,\calA(z),i}(x,y,n)\}_{x,y,z,n}$$
+where $x,y\in\{0,1\}^*$ under the constraint that $\abs{x}=\abs{y}$,$z\in\{0,1\}^*$ and $n\in\N$.
+\label{def:2party-security}
+\end{definition}
+\begin{remark}
+Observe that Definition \ref{def:2party-security} implies {\it privacy} and {\it correctness}. In the ideal model, adversary cannot learn anything other then the output of the functionality. The indistinguishability between $\ideal$ and $\real$ implies that the adversary in the real world also cannot learn anything. Correctness is also guaranteed by the same reason.
+\end{remark}
+\begin{remark} We only consider deterministic adversaries due to the fact that $\simu$ can set the random tape of the adversary $\calA$ if we consider only black-box security.
+\end{remark}
+\subsection{Modular Sequential Composition}
+A protocol that is secure under {\it sequential} composition maintains its security when run multiple times, as long as the executions are run sequentially.
+\begin{theorem}[Sequential Composition Theorems](Informal) If a protocol is secure in the stand-alone model under definition X, then it remains secure under X under sequential composition.
+\end{theorem}
+\begin{description}[leftmargin=0em]
+\item[Modular sequential composition.] The motivation of formulating modular sequential composition is to enable the designing of a protocol that use an ideal functionality as a subroutine. We begin by presenting the ``hybrid model'' where parties communicate by sending regular messages to each other (as in the real model) but also have access to a trusted party (as in the ideal model).
+\item[The hybrid model.] The parties run a protocol $\pi$ that contains ``ideal calls'' to a trusted party computing some functionalities $f_1,\ldots,f_{p(n)}$. The protocol $\pi$ always called $f_i$ before $f_{i+1}$. If a functionality $f_i$ is {\it reactive}(meaning that it contains multiple stages), no message is sent directly to each other (we only consider {\it sequential composition} here).
+\item[Sequential composition-malicious adversaries] Let $f_1,\ldots,f_{p(n)}$ be probabilistic polynomial-time functionalities and let $\pi$ be a two-party hybrid-model protocol that uses ideal calls to them. Then, the $f_1,\cdots,f_{p(n)}$-{\sf hybrid execution of }$\pi$, denoted as {\sf HYBRID}$^{f_1,\cdots,f_{p(n)}}_{\pi,\calA(z),i}(x,y,n)$ is the output of honest parties and adversary $\calA$.
+\end{description}
+\begin{theorem} Let $p(n)$ be a polynomial, let $f_1,\ldots,f_{p(n)}$ be two-party probabilistic polynomial-time functionalities and let $\rho_1,\ldots,\rho_{p(n)}$ be protocols such that each $\rho_i$ securely computes $f_i$ in the presence of malicious adversaries. Let $g$ be a two-party functionality and let $\pi$ be a protocol that securely computes $g$ in $f_1,\cdots,f_{p(n)}$-{\sf hybrid model} in the presence of malicious adversaries. Then, $\pi^{\rho_1,\cdots,\rho_{p(n)}}$ securely computes $g$ in the presence of malicious adversaries.
+\end{theorem}

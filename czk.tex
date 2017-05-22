@@ -1,0 +1,122 @@
+\subsection{Constant-Round Zero Knowledge}
+Simply runs $n\cdot\abs{E}$ iteration in parallel is not working. The simulator will need to guess all $N\stackrel{def}{=} n\cdot\abs{E}$ edges correctly to success. The probability of guessing correctly is $\abs{E}^{-n\cdot\abs{E}}$, which is exponentially small. Note that rewinding doesn's solve this problem. The adversaries can simply choose a new randomness each time. In fact, Goldreich and Krawczyk showed that this paralle protocol is not {\it black-box zero-knowledge}, and no constant-round public-coin proof for a language not in ${\sf BPP}$ is boack-box zero-knowledge. Althougth there are no known constructions of adversaries, the lack of known attack is not sufficient to conclude that a protocol is secure. Thus, an alternative protocol is needed.
+
+The solution presented by Goldreich and Kahan is to simply have the verifier commit to its query before the prover sends its commitments. This prevents a malicious verifier from changing its query during rewinding. Details appear in Protocol~\ref{proto:zk-3-color-constant}. \\ \\
+\begin{adjustbox}{minipage=1\linewidth,fbox}
+\begin{protocol}[The Goldreich-Kahan Proof System]$ $
+    \begin{description}
+        \item[Common input.] a graph $G=(V,E)$ with $V=\{v_1,\ldots,v_n\}$
+        \item[Auxiliary input for $P$.] a coloring of the graph $\psi:V\to\{1,2,3\}$ such that \\ 
+        for every $(v_i,v_j)\in E$ it holds that $\psi(v_i)\neq\psi(v_j)$
+        \item[Primitives] Let $\com$ be an non-interactive perfectly-binding commitment scheme,\\ $\com_h$ be a two-round perfectly-hiding commitment scheme. 
+        \item[The proof system:] Repeating the following $n\cdot\abs{E}$ times:
+        $ $\newline\newline
+        \begin{adjustbox}{minipage=0.6\linewidth}
+            \begin{tabular}{lcl}
+            $P(G,\psi;r_P)$ & & $V(G;r_V)$ \\
+            \\
+            Send the first message, denoted 
+            \\by $\alpha$ of $\com_h$ & \rextlinearrow{\alpha}{15} & \\
+            & & choose $N\stackrel{def}{=}n\cdot\abs{E}$ random \\
+            & & edges $q=(e_1,\ldots,e_N)$, \\
+            & & where $e_i\in E$ \\
+            &\lextlinearrow{c}{15}& $c=\com_h(q)$\\
+            Continue as basic protocol~\ref{proto:zk-3-color-nonconstant}&&\\
+            & \rextlinearrow{\com(\phi(v))}{15} & \\
+            & \lextlinearrow{\decom(c)}{15}& send decommitmet of $c$\\
+            {\bf If} the decommitment is invalid \\
+            {\bf abort}& &\\
+            {\bf Otherwise} send the decommitment \\
+            of edges & \rextlinearrow{\decom(v)}{15}& If all checks pass outputs 1\\
+            \end{tabular}
+        \end{adjustbox}
+        \\
+    \end{description}\label{proto:zk-3-color-constant}
+\end{protocol}
+\end{adjustbox}
+\\ \\
+First thought of a possible simulator is:
+\begin{enumerate}
+\item $\simu$ sends $alpha$ to $V^*$
+\item $\simu$ receives commitment $c$ from $V^*$
+\item $\simu$ sends $V^*$ garbage commitments and receives its decommitment. If the decommitment is not valid, it aborts. Otherwise, denote the decommitted string by 
+$q=(e_1,\ldots,e_N)$.
+\item $\simu$ rewinds $V^*$, send a new $\com(\phi(v))$ that suit $q$. Repeat this step until $V^*$ send a valid decommitment
+\item $\simu$ sends $V^*$ the decommitment to the nodes on the committed edge and outputs whatever $V^*$ outputs.
+\end{enumerate}
+There are two issues in this simple simulator. First, since the commitment to $q$ is perfectly hiding and thus only {\it computationally-binding}. It is possible that the $V^*$ decommits to a valid $q'\neq q$. Second, we are not able to show that the simulator is running in expected polynomial-time. Let $\epsilon$ denote the probability that $V^*$ does not abort. At first glance, one may conclude that the expected running time of the simulator is $(1-\epsilon)+\epsilon\cdot\frac{1}{\epsilon}$. However this is only in the case that commitment is modeled as ``perfect envelopes''. The true running is:
+$$poly(n)\cdot(1-\epsilon(n)+\epsilon(n)\cdot\frac{1}{\epsilon(n)-\mu(n)}),$$
+which might be exponential in $n$.
+\begin{theorem} Let $\com_h$ and $\com$ be {\it perfectly-hiding} and {\it perfectly-binding} commitment schemes, respectively, with security in the presence of non-uniform PPT adversaries. Then Protocol~\ref{proto:zk-3-color-constant} is black-box computational zero knowledge with an expected polynomial-time simulator.
+\end{theorem}
+\begin{proof}
+The simulator is stated as Algorithm~\ref{alg:zk-3-color-constant-sim}. We have three claims to complete our proof.
+\begin{claim} Algorithm~\ref{alg:zk-3-color-constant-sim} runs in expected polynomial time in $n$.
+By Chernoff bound, we have $\widetilde{\epsilon}$ is not within a constant factor of $\epsilon(n)$ is at most $2^{-n}$.
+Consider two cases:
+\begin{enumerate}
+\item $\widetilde{\epsilon}$ is not within a constant factor of $\epsilon(n)$.
+	The running-time is bounded by $2^{n}$ and this happens with probability $2^{-n}$. This add a total $poly(n)$ to expected running-time.
+\item $\widetilde{\epsilon}/\epsilon=O(1)$.
+We can bound the expected running-time of $\simu$ by
+$$poly(n)\cdot\epsilon(n)\cdot(\frac{12n}{\epsilon(n)}+n\cdot\frac{n}{\widetilde{\epsilon}})=poly(n)$$
+\end{enumerate}
+\end{claim}
+\begin{claim} The probability that Algorithm~\ref{alg:zk-3-color-constant-sim} outputs {\sf fails} is negligible.
+Notice that:
+$$\Pr[\simu \text{outputs \sf fails}]=\Pr[\text{does not obtain vaild decommitment in the loop}]+\Pr[\text{runs for }2^n\text{steps}]$$
+We already saw that $\simu$ runs in expected poly-time, therefore the probability that it runs for $2^n$ steps is negligible.
+Now consider the case the $\simu$ does not obtain valid in all $n\cdot\frac{n}{\widetilde{\epsilon}}$ attemps. Recall that $\epsilon(n)$ denotes the probability that $V^*$ decommits when given commitments to all zeros. Next there exists an negligible function $\mu(\cdot)$ such that $V^*$ decommits when given commitments in line 20 of Algorithm~\ref{alg:zk-3-color-constant-sim}. $\mu(n)$ needs to be negligible or $V^*$ can be used to break {\it computationally-hiding} of $Com_h$. Now consider following cases:
+\begin{enumerate}
+\item $\epsilon(n)\leq 2\mu(n)$: This means $V^*$ decommits its query string with negligible probability. The probability of $\simu$ reaches the rewinding phase is negligible.
+\item $\epsilon(n)> 2\mu(n)$: We have $\frac{1}{\epsilon(n)-\mu(n)}<\frac{2}{\epsilon(n)}$. The expected number of rewindings is bounded by $O(1/\widetilde{\epsilon})$ assuming $\widetilde{\epsilon}/\epsilon=O(1)$. By Markov's inequality, the probability that $\simu$ tries more than $n/\widetilde{\epsilon}$ iterations in any $n$ repetitions is at most $O(1/n)$. All repetitions fails with probability at most $O(1/n)^n$.
+The case that $\widetilde{\epsilon}$ is not within a constant factor of $\epsilon(n)$ is negligible.
+\end{enumerate}
+\end{claim}
+
+\begin{claim} The probability that $\simu$ outputs {\sf ambiguous} is negligible in $n$.
+Intuitively, if there exists an infinite series of inputs for which $\simu$ outputs {\sf ambiguous} with non-negligible probability, then this can be used to break the computational binding of $\com_h$.
+\end{claim}
+
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$\simu^{V^*(x,z,r,\cdot)}(G;r)$\;
+\Input{$G=(V,E)$, with $V=\{v_1,\ldots,v_n\}$}
+\Output{A simulated view close to real view of $V^*$.}
+``Send'' $V^*$ the first message of $\com_h$\;
+``Receive'' from $V^*$ an commitment $c$ to some query string $q=(e_1,\ldots,e_N),N=n\cdot\abs{E}$ and receive back its reply\;
+``Send'' $V^*$ $N$ vectors of $n$ commitments to $0$\;
+\If{$V^*$ {\bf aborts} or $\decom_h(c)$ is invalid}{
+    {\bf Output} $\perp$
+}\Else{
+    
+    Let $q=(e_1,\ldots,e_N)$ be the decommitted value.\;
+    $m\gets 0$\;
+    $ctr\gets 0$\;
+    \While{$m<12n$}{
+    	$ctr\gets ctr+1$
+    	execute {\bf Step 4}\;
+	\If{$\decom_h(c)$ is valid}{
+		$m\gets m+1$\;
+	}
+    }
+    $\widetilde{\epsilon}\gets \frac{m}{ctr}$\;
+    \For{$i=1,\ldots,n$}{
+    \For{$j=1,\ldots ,n / \widetilde{\epsilon} $} {
+    Generate $N$ vectors of commitments $\vec{c_1},\ldots,\vec{c_N}$ as original protocol.\;
+    	\If{$V^*$ provides a valid decommitment to $q$}{
+		{\bf break}\;
+    	}
+	\If{$V^*$ provides a valid decommitment to $q'\neq q$}{
+		{\bf output} {\sf ambiguous}\; {\bf halts}\;
+	}
+	\If{the total running time $> 2^{-n}$}{{\bf output} {\sf fails}\;}
+    }}
+    Completes the proof by handing $V^*$ decommitments.
+}
+
+\caption{Simulator of Protocol~\ref{proto:zk-3-color-constant}.}\label{alg:zk-3-color-constant-sim}
+\end{algorithm}
+
+\end{proof}

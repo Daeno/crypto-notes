@@ -1,0 +1,54 @@
+\section{Determining Output - Coin Tossing}
+
+In this section, we present the protocol by Blum for tossing a single coin securely. The protocol securely computes the functionality $f_{ct}(\lambda,\lambda)=(U_1,U_1)$.
+Intuition behind protocol~\ref{proto:ct-1bit} is simple: each party locally choose a random bit, and the result is the XOR of the two bits. But there is a problem that if $P_1$ sends its random bit to $P_2$ first, $P_2$ is able to cheat and force the output to be the result it desires. This can be fixed by requiring $P_2$ commit its random bit before $P_1$ sending the random bit.
+
+\begin{adjustbox}{minipage=1\linewidth,fbox}
+\begin{protocol}[Blum's Coin Tossing of a Single Bit]$ $
+    \begin{description}
+        \item[Security parameter:] Both parties have security parameter $1^n$
+        \item[The proof system:]
+        $ $\newline\newline
+        \begin{adjustbox}{minipage=0.6\linewidth}
+            \begin{tabular}{lcl}
+            $P_1(1^n)$ & & $P_2(1^n)$ \\
+            \\
+            Choose $b_1\in_R\{0,1\}$ and \\
+            a random $r\in\{0,1\}^n$ and send \\
+            $c=\com(b_1;r)$ & \rextlinearrow{c}{15} & \\
+            &\lextlinearrow{b_2}{15} & $b_2\in_R\{0,1\}$ \\
+            {\bf If} $b_2$ is invalid, let $b_2=0$ \\
+            {\bf Output} $b=b_1\oplus b_2$ & \rextlinearrow{(b_1,r)}{15} & \\
+            & & checks that $c=\com(b_1;r)$ \\
+            & & {\bf If} yes, output $b=b_1\oplus b_2$\\
+            & & {\bf Otherwise} output $\perp$
+            \end{tabular}
+        \end{adjustbox}
+        \\
+    \end{description}
+    \label{proto:ct-1bit}
+\end{protocol}
+\end{adjustbox}
+\\ \\
+In the simulation, the simulator receives the output bit $b$ from the trusted party and needs to make the result of the execution equal $b$.
+
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$\simu^{\calA(\cdot)}()$\;
+\Input{Nothing}
+\Output{A simulated view and output close to real view of $\calA$.}
+``Send'' $\lambda$ to $f_{ct}$ and receives bit $b$\;
+\For{$i=1,\ldots,n$}{
+    $b_1\stackrel{\$}{\gets}\{0,1\}$\;
+    $r\stackrel{\$}{\gets}\{0,1\}^n$\;
+    $c=\com(b_1;r)$\;
+    Let $b_2=\calA(c)$, note that invalid $b_2$ is interpreted as $b_2=0$\;
+    \If{$b_2 = b\oplus b_1$}{
+        {\bf Output} $\calA(c,(b_1,r))$
+    }
+}
+{\bf Output} {\sf fail}.
+
+\caption{Simulator of Protocol~\ref{proto:ct-1bit}}\label{alg:ct-1bit-sim}
+\end{algorithm}

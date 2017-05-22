@@ -1,8 +1,19 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage{crypto}
 \begin{document}
-
+\tableofcontents
 %%%%%%%%%%% Change the XX in the below line to 01, 02, 03, ..., 10, 11, or whatever
 \include{how-to-simulate-it}
 %\include{tracable-ring-signature}
+\include{czk}
+\include{Def-Security-Mal-Adv}
+\include{Coin-Tossing}
+
+\begin{appendices}
+\include{appen-commit}
+\end{appendices}
+\insertbibliography{crypto}
+\nocite{*}
+
+\listoftodos[Notes]
 \end{document}

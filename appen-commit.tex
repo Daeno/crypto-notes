@@ -1,0 +1,18 @@
+\section{Commitment Scheme}
+\change{Add intros}
+\subsection{Commitment Schemes}
+A commitment scheme is an efficient {\it two-phase two-party protocol\/} between a sender and a receiver where the sender can commit itself to a {\it value\/} such that:
+\begin{enumerate}
+\item {\it Hiding\/}: The receiver does not gain any knowledge of the sender's committed {\it value\/} at the end of the first phase.
+\item {\it Binding\/}: Given the transcript of the interaction in the first phase, there exists at most one {\it value\/} that the receiver can later (i.e., in the second phase) accept as a legal ``opening'' of the commitment.
+\end{enumerate}
+In addition, the protocol should be {\it viable\/}, in the sense that at the end of the second phase, the receiver should receive the {\it value\/} that the sender committed to. The first phase is called the ``commit phase'' while the second phase is called the ``reveal phase''. Formally, we have the following definition.
+\begin{definition}{Bit-Commitment Scheme} A {\bf bit-commitment scheme} is a pair of {\it probabilistic polynomial-time interactive machines\/}, denoted $(S,R)$, satisfying the following:
+\begin{itemize}
+\item Input: $n$ as security parameter.
+\item {\it Hiding\/}: The commitment of $0$ is indistinguishable from the commitment of $1$, namely:
+$$
+    \{\langle S(0),R^*\rangle(1^n)\}\cequiv\{\langle S(1),R^*\rangle(1^n)\}
+$$
+\end{itemize}
+\end{definition}

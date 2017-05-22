@@ -1,3 +1,4 @@
+\usepackage[pdftex,dvipsnames]{xcolor}
 \usepackage{amsmath,amssymb,amsthm,amsfonts,latexsym,bbm,xspace,graphicx,float,mathtools,epigraph}
 \usepackage[backref,colorlinks,citecolor=blue,bookmarks=true]{hyperref}
 \usepackage{enumitem,manyfoot,fullpage}
@@ -5,18 +6,32 @@
 \usepackage{tabularx}
 \usepackage[linesnumbered,ruled]{algorithm2e}
 \usepackage[a4paper, margin=0.8in]{geometry}
+\usepackage[titletoc]{appendix}
 
+
+\usepackage[draft]{ifdraft}
 \usepackage{verbatimbox}
 \usepackage{multirow}
 \usepackage{scalerel}
 \usepackage{adjustbox}
-\usepackage{xcolor}
-%\usepackage{tgheros}
+
+\usepackage{xargs}
+\ifoptiondraft{
+  \usepackage[colorinlistoftodos,prependcaption,textsize=tiny]{todonotes}
+}{
+  \usepackage[disable]{todonotes} % final without TODOs
+}
+
+% 
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+\newcommandx{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+\newcommandx{\thiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
+%
 
 \hfuzz2pt
 
-% Self notes command
-\newcommand\YHnote[1]{\textcolor{red}{#1}}
 \newcommand\sequiv{\stackrel{s}{\equiv}}
 \newcommand\cequiv{\stackrel{c}{\equiv}}
 % environments
@@ -86,6 +101,7 @@
 \end{center}
 }
 \setcounter{section}{0}
+
 % probability and other mathops
 \renewcommand{\Pr}{\mathop{\mathbb P\/}}
 \newcommand{\Rand}{\mathop{\reflectbox{\bf R}\!\/}}
