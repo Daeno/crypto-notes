@@ -50,5 +50,29 @@ $\simu^{\calA(\cdot)}()$\;
 }
 {\bf Output} {\sf fail}.
 
-\caption{Simulator of Protocol~\ref{proto:ct-1bit}}\label{alg:ct-1bit-sim}
+\caption{Simulator for $P_2$ in Protocol~\ref{proto:ct-1bit}}\label{alg:ct-1bit-sim}
 \end{algorithm}
+
+\begin{theorem} Assume that $\com$ is a {\it perfectly-binding} commitment scheme. Then, Protocol \ref{proto:ct-1bit} securely computes the bit coin-tossing functionality defined by $f_{ct}(\lambda, \lambda)=(U_1,U_1).$
+\end{theorem}
+\begin{proof}
+First, consider the case where $P_2$ is corrupted. The simulator is defined as Algorithm \ref{alg:bot-p2-sim}. We first prove that $\simu$ outputs {\sf fails} with negligible probability.
+Observe that the iterations finish if $\calA(\com(b_1))=b\oplus b_1$. We have:
+    \begin{align*}
+        \Pr[\calA(\com(b_1))=b_1\oplus b]&=\frac{1}{2}\Pr[\calA(\com(0))=b]+\frac{1}{2}\Pr[\calA(\com(1))=1\oplus b]\\
+        &=\frac{1}{2}\Pr[\calA(\com(0))=b]+\frac{1}{2}(1-\Pr[\calA(\com(0))=b]) \\
+        &=\frac{1}{2}+\frac{1}{2}(\Pr[\calA(\com(0))=b]-\Pr[\calA(\com(1))=b])
+    \end{align*}
+by the computationally hiding property of $\com$ we have that exists a negligible function $\mu(\cdot)$ such that:
+$$
+    \abs{\Pr[\calA(\com(0))=b]-\Pr[\calA(\com(1))=b]}<\mu(n)
+$$
+and so
+$$
+    \frac{1}{2}\cdot(1-\mu(n))\leq\Pr[\calA(\com(b_1))=b_1\oplus b]\leq\frac{1}{2}(1+\mu(n))
+$$.
+The simulator fails with probability as most
+$$
+    \left(\frac{1}{2}\cdot(1+\mu(n))\right)^n <\left(\frac{2}{3}\right)^n
+$$
+\end{proof}
