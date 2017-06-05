@@ -68,11 +68,37 @@ $$
     \abs{\Pr[\calA(\com(0))=b]-\Pr[\calA(\com(1))=b]}<\mu(n)
 $$
 and so
-$$
-    \frac{1}{2}\cdot(1-\mu(n))\leq\Pr[\calA(\com(b_1))=b_1\oplus b]\leq\frac{1}{2}(1+\mu(n))
-$$.
+\begin{equation}
+    \frac{1}{2}\cdot(1-\mu(n))\leq\Pr[\calA(\com(b_1))=b_1\oplus b]\leq\frac{1}{2}(1+\mu(n))\label{eq:com-hiding}
+\end{equation}
 The simulator fails with probability as most
 $$
     \left(\frac{1}{2}\cdot(1+\mu(n))\right)^n <\left(\frac{2}{3}\right)^n
 $$
+Next, we show that conditioned on that $\simu$ doesn't output {\sf fails}, the output distribution of $\ideal$ and $\real$ are statistically close. We know that both distribution is of form $(b_1, \calA(\com(b_1;r), b_1, r))$. The difference is as follows:
+    \begin{itemize}
+        \item In $\real$, $b_1, r$ is sampled uniformly.
+        \item In $\ideal$, a random $b$ is chosen, and thtn random $b_1$ and $r$ are chosen under the constraint that $b_1\oplus\calA(\com(b_1;r))=b$.
+    \end{itemize}
+In $\real$ world, $(\hat{b_1},\hat{r})$ appears with probability exactly $2^{-(n+1)}$. Regarding the $\ideal$ world, let $S_b=\{(b_1,r)|b_1\oplus\calA(\com(b_1;r))=b\}$. Any fixed $(\hat{b_1},\hat{r})$ appears with probability
+$$
+    \frac{1}{2}\cdot\frac{1}{\abs{S_b}}.
+$$
+and $\abs{S_b}$ can be bounded by equation \ref{eq:com-hiding}. We conclude that $\ideal$ and $\real$ is statistically close.
+
+Next, consider $P_1$ is corrupted.
 \end{proof}
+
+\begin{algorithm}
+\SetKwInOut{Input}{Input}
+\SetKwInOut{Output}{Output}
+$\simu^{\calA(\cdot)}()$\;
+\Input{Nothing}
+\Output{A simulated view and output close to real view of $\calA$.}
+{\bf Send} $\lambda$ to $f_{ct}$ and receives bit $b$\;
+{\bf Recv} $c$ from $\calA$\;
+{\bf Send} $b_2=0$ to $\calA$ and receives $({b'}_1^0,{r'}_1^0)$.\;
+{\bf Send} $b_2=1$ to $\calA$ and receives $({b'}_1^1,{r'}_1^1)$.\;
+
+\caption{Simulator for $P_1$ in Protocol~\ref{proto:ct-1bit}}\label{alg:ct-1bit-sim-p2}
+\end{algorithm}

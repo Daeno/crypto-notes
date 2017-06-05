@@ -1,5 +1,5 @@
 \section{Commitment Scheme}
-\change{Add intros}
+We show the basic protocols that implement commitment functionality in this appendix.\change{Add intros}
 \subsection{Commitment Schemes}
 A commitment scheme is an efficient {\it two-phase two-party protocol\/} between a sender and a receiver where the sender can commit itself to a {\it value\/} such that:
 \begin{enumerate}
@@ -14,5 +14,20 @@ In addition, the protocol should be {\it viable\/}, in the sense that at the end
 $$
     \{\langle S(0),R^*\rangle(1^n)\}\cequiv\{\langle S(1),R^*\rangle(1^n)\}
 $$
+\item {\it Binding}: Some preliminaries to the requirement:
+    \begin{enumerate}
+        \item Let $(r,\bar{m})$ be the view of the receiver. we say that $(r,\bar{m})$ is a possible $\sigma$-commitment if $(r,\bar{m})=\view_{R(1^n,r)}^{S(\sigma,1^n,s)}$
+        \item {\it Ambiguous}: We say the receiver's view $(r,\bar{m})$ is {\bf ambiguous} if it is both a possible 0-commmitment and a possible 1-commitment.
+    \end{enumerate}
+The {\it binding propertiy} requires that for all but a negligible fraction of $r\in\{0,1\}^{poly(n)}$ there is no $\bar{m}$ such that $(r,\bar{m})$ is ambiguous.
 \end{itemize}
 \end{definition}
+\begin{description}
+\item[Canonical Reveal Phase.] This can be done easily by:
+\begin{enumerate}
+    \item The sender sends to the receiver its initial private input $v$ and the random coins $s$ it used in the commit phase.
+    \item The receiver verifies that $v$ and $s$ indeed yeild the messages that $R$ received in the commit phase.
+\end{enumerate}
+\end{description}
+
+\subsection{Construction Based on Any One-Way Permutation}
